@@ -1,3 +1,5 @@
-export const entities = []
+import { Application } from './application'
 
-export {}
+export const entities = [Application]
+
+export { Application }
