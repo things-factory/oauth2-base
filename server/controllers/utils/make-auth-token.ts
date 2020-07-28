@@ -1,4 +1,4 @@
 import crypto from 'crypto'
-export function makeVerificationToken() {
+export function makeAuthToken() {
   return crypto.randomBytes(16).toString('hex')
 }

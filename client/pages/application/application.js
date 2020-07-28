@@ -2,9 +2,6 @@ import { html, LitElement } from 'lit-element'
 import { connect } from 'pwa-helpers/connect-mixin.js'
 import { store, PageView } from '@things-factory/shell'
 
-import logo from '../../assets/images/hatiolab-logo.png'
-import { UPDATE_MODULES } from '../../../../shell/client/actions/app'
-
 class Application extends connect(store)(PageView) {
   static get properties() {
     return {
@@ -16,7 +13,6 @@ class Application extends connect(store)(PageView) {
     return html`
       <section>
         <h2>application</h2>
-        <img src=${logo}></img>
       </section>
     `
   }
@@ -104,4 +100,4 @@ class Application extends connect(store)(PageView) {
   }
 }
 
-window.customElements.define('application', Application)
+window.customElements.define('application-page', Application)

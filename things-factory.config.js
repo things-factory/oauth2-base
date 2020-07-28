@@ -5,8 +5,16 @@ export default {
   route,
   routes: [
     {
-      tagname: 'oauth2-server-main',
-      page: 'oauth2-server-main'
+      tagname: 'application-page',
+      page: 'application'
+    },
+    {
+      tagname: 'applications-page',
+      page: 'applications'
+    },
+    {
+      tagname: 'register-app',
+      page: 'register-app'
     }
   ],
   bootstrap

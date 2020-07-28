@@ -1,24 +1,8 @@
-// import { Filter, Pagination, Sorting, ObjectRef } from '@things-factory/shell'
-// import * as CommonCode from './common-code'
-// import * as CommonCodeDetail from './common-code-detail'
+import * as Application from './application'
+import * as AuthToken from './auth-token'
 
-// export const queries = [
-//   CommonCode.Query,
-//   CommonCodeDetail.Query
-// ]
+export const queries = [Application.Query, AuthToken.Query]
 
-// export const mutations = [
-//   CommonCode.Mutation,
-//   CommonCodeDetail.Mutation
-// ]
+export const mutations = [Application.Mutation, AuthToken.Mutation]
 
-// export const types = [
-//   ...CommonCode.Types,
-//   ...CommonCodeDetail.Types
-// ]
-
-export const queries = []
-
-export const mutations = []
-
-export const types = []
+export const types = [...Application.Types, ...AuthToken.Types]

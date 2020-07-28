@@ -1,16 +1,6 @@
-// import * as CommonCode from './common-code'
-// import * as CommonCodeDetail from './common-code-detail'
-//
-// export const queries = [
-//   CommonCode.Query,
-//   CommonCodeDetail.Query
-// ]
+import * as Application from './application'
+import * as AuthToken from './auth-token'
 
-// export const mutations = [
-//   CommonCode.Mutation,
-//   CommonCodeDetail.Mutation
-// ]
+export const queries = [Application.Query, AuthToken.Query]
 
-export const queries = []
-
-export const mutations = []
+export const mutations = [Application.Mutation, AuthToken.Mutation]

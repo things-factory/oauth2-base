@@ -1,5 +1,6 @@
 import { Application } from './application'
+import { AuthToken, AuthTokenType } from './auth-token'
 
-export const entities = [Application]
+export const entities = [Application, AuthToken]
 
-export { Application }
+export { Application, AuthToken, AuthTokenType }

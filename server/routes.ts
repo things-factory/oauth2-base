@@ -1,7 +1,7 @@
 import oauth2orize from 'oauth2orize-koa'
 import { getRepository } from 'typeorm'
-import { VerificationToken, VerificationTokenType } from '@things-factory/auth-base'
-import { makeVerificationToken, saveVerificationToken } from './controllers/utils'
+import { makeAuthToken, saveAuthToken } from './controllers/utils'
+import { AuthToken, AuthTokenType } from './entities'
 
 process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => {
   /*
@@ -28,11 +28,11 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
 
   server.grant(
     oauth2orize.grant.code(async function (client, redirectURI, user, ares) {
-      var token = makeVerificationToken()
-      saveVerificationToken(user.id, token, VerificationTokenType.GRANT)
+      var token = makeAuthToken()
+      saveAuthToken(user.id, token, AuthTokenType.GRANT)
 
       /* TODO client, redirectURI, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */
-      /* TODO VerificationTokenType에 GRANT를 추가한다. */
+      /* TODO AuthTokenType에 GRANT를 추가한다. */
 
       return token
     })
@@ -40,22 +40,21 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
 
   server.exchange(
     oauth2orize.exchange.code(async function (client, token, redirectURI) {
-      var verificationToken = await getRepository(VerificationToken).findOne({
+      var authToken = await getRepository(AuthToken).findOne({
         token
       })
 
-      /* TODO clientId, redirectURI 가 verification-token 엔티티에 추가되어야 한다.
-      if (client.id !== verificationToken.clientId) {
+      if (client.id !== authToken.clientId) {
         return false
       }
-      if (redirectURI !== verificationToken.redirectUri) {
-        return false
-      }
-      */
 
-      var token4accesstoken = makeVerificationToken() // 256 bytes token
+      if (redirectURI !== authToken.redirectUri) {
+        return false
+      }
+
+      var token4accesstoken = makeAuthToken() // 256 bytes token
       // var at = new AccessToken(token4accesstoken, code.userId, code.clientId, code.scope)
-      saveVerificationToken(user.id, token, VerificationToken.XXXX)
+      saveAuthToken(client.id, token, AuthTokenType.ACTIVATION)
 
       return token4accesstoken
     })

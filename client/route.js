@@ -1,10 +1,18 @@
 export default function route(page) {
   switch (page) {
     case '':
-      return '/oauth2-server-main'
+      return '/applications'
 
-    case 'oauth2-server-main':
-      import('./pages/main')
+    case 'application':
+      import('./pages/application/application')
+      return page
+
+    case 'applications':
+      import('./pages/application/applications')
+      return page
+
+    case 'register-app':
+      import('./pages/application/register-app')
       return page
   }
 }
