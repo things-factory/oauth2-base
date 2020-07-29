@@ -2,7 +2,7 @@ import { html, css, LitElement } from 'lit-element'
 import gql from 'graphql-tag'
 
 import { connect } from 'pwa-helpers/connect-mixin.js'
-import { client, store, PageView } from '@things-factory/shell'
+import { client, store, navigate, PageView } from '@things-factory/shell'
 
 class RegisterApp extends connect(store)(PageView) {
   static get styles() {
@@ -23,49 +23,30 @@ class RegisterApp extends connect(store)(PageView) {
 
   render() {
     return html`
-      <form>
-        <label for="name">name</label>
-        <input id="name" type="text" name="name" />
+      <label for="name">name</label>
+      <input id="name" type="text" name="name" />
 
-        <label for="description">description</label>
-        <input id="description" type="text" name="description" />
+      <label for="description">description</label>
+      <input id="description" type="text" name="description" />
 
-        <label>email</label>
-        <input id="email" type="text" name="email" />
+      <label>redirectUrl</label>
+      <input id="redirect-url" type="text" name="redirect-url" />
 
-        <label>icon</label>
-        <input id="icon" type="text" name="icon" />
-
-        <label>redirectUrl</label>
-        <input id="redirectUrl" type="text" name="redirectUrl" />
-
-        <label>webhookUrl</label>
-        <input id="webhookUrl" type="text" name="webhookUrl" />
-      </form>
-      <button @click=${this.submit.bind(this)}>submit</button>
+      <button @click=${this.createApplication.bind(this)}>create application</button>
     `
   }
 
-  async submit(e) {
-    e.preventDefault()
-
-    const form = this.renderRoot.querySelector('form')
-    const formData = new FormData(form)
-
-    const name = formData.get('name')
-    const description = formData.get('description')
-    const email = formData.get('email')
-    const icon = formData.get('icon')
-    const redirectUrl = formData.get('redirectUrl')
-    const webhookUrl = formData.get('webhookUrl')
+  async createApplication(e) {
+    const name = this.renderRoot.querySelector('#name').value
+    const description = this.renderRoot.querySelector('#description').value
+    const redirectUrl = this.renderRoot.querySelector('#redirect-url').value
 
     const application = {
       name,
       description,
-      email,
-      icon,
-      redirectUrl,
-      webhookUrl
+      url: 'zzzz',
+      email: 'xxxx',
+      redirectUrl
     }
 
     const response = await client.mutate({
@@ -81,7 +62,12 @@ class RegisterApp extends connect(store)(PageView) {
       }
     })
 
-    this.application = response.data.createApplication
+    if (response.errors) {
+      console.log('creation fail.')
+    } else {
+      const id = response.data.createApplication.id
+      navigate(`application/${id}`)
+    }
   }
 
   updated(changes) {

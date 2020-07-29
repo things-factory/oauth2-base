@@ -15,10 +15,6 @@ export default {
     {
       tagname: 'register-app',
       page: 'register-app'
-    },
-    {
-      tagname: 'app-setup',
-      page: 'app-setup'
     }
   ],
   bootstrap

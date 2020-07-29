@@ -2,7 +2,6 @@ import gql from 'graphql-tag'
 
 export const ApplicationPatch = gql`
   input ApplicationPatch {
-    id: String!
     name: String
     description: String
     email: String
@@ -10,6 +9,5 @@ export const ApplicationPatch = gql`
     icon: String
     redirectUrl: String
     webhook: String
-    cuFlag: String
   }
 `

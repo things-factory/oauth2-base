@@ -10,6 +10,7 @@ export const Application = gql`
     icon: String
     redirectUrl: String
     webhook: String
+    appKey: String
     appSecret: String
     refreshToken: String
     updater: User

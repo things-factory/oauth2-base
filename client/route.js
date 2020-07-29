@@ -14,9 +14,5 @@ export default function route(page) {
     case 'register-app':
       import('./pages/application/register-app')
       return page
-
-    case 'app-setup':
-      import('./pages/application/app-setup')
-      return page
   }
 }

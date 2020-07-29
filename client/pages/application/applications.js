@@ -18,12 +18,14 @@ class Applications extends connect(store)(PageView) {
         ${apps.map(
           app => html`
         <li>
-          <h2><a href=${`app-setup/${app.id}`}>${app.name}</a></h3>
+          <h2><a href=${`application/${app.id}`}>${app.name}</a></h3>
           <h3>${app.description}</h3>
         </li>
       `
         )}
       </ul>
+
+      <a href="register-app">create app</a>
     `
   }
 

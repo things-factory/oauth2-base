@@ -13,16 +13,8 @@ export const Mutation = `
     patch: ApplicationPatch!
   ): Application
 
-  updateMultipleApplication (
-    patches: [ApplicationPatch]!
-  ): [Application]
-
   deleteApplication (
     id: String!
-  ): Boolean
-
-  deleteApplications (
-    ids: [String]!
   ): Boolean
 `
 
