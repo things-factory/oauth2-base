@@ -37,19 +37,25 @@ export class AuthToken {
   userId: string
 
   @Column()
-  clientId: string
+  appKey: string
 
   @Column()
   type: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   token: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   scope: string
 
-  @Column()
-  redirectUri: string
+  @Column({
+    nullable: true
+  })
+  redirectUrl: string
 
   @CreateDateColumn()
   createdAt: Date

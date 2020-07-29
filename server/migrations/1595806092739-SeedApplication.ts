@@ -1,11 +1,16 @@
 import { MigrationInterface, QueryRunner, getRepository } from 'typeorm'
-import { Domain } from '@things-factory/shell'
 import { Application } from '../entities'
 
 const SEED = [
   {
     name: 'Operato MMS',
-    description: 'Operato MMS Application'
+    description: 'Operato MMS Application',
+    email: 'heartyoh@hatiolab.com',
+    url: 'http://mms.opa-x.com:3000',
+    icon: '',
+    redirectUrl: 'http://mms.opa-x.com:3000/callback-operato',
+    webhook: 'http://mms.opa-x.com:3000/webhook-operato',
+    appKey: '20143978290-1834'
   }
 ]
 

@@ -6,9 +6,10 @@ export const Application = gql`
     name: String
     description: String
     email: String
+    url: String
     icon: String
     redirectUrl: String
-    webhookUrl: String
+    webhook: String
     appSecret: String
     refreshToken: String
     updater: User

@@ -8,7 +8,6 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
-import { Domain } from '@things-factory/shell'
 import { User } from '@things-factory/auth-base'
 
 @Entity()
@@ -28,6 +27,9 @@ export class Application {
   @Column()
   email: string
 
+  @Column()
+  url: string
+
   @Column({
     nullable: true
   })
@@ -39,12 +41,12 @@ export class Application {
   @Column({
     nullable: true
   })
-  webhookUrl: string
+  webhook: string
 
-  // @Column({ /* use id */
-  //   nullable: true
-  // })
-  // appKey: string
+  @Column({
+    nullable: true
+  })
+  appKey: string
 
   @Column({
     nullable: true

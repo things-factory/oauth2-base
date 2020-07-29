@@ -9,7 +9,7 @@ export const Mutation = `
   ): Application
 
   updateApplication (
-    name: String!
+    id: String!
     patch: ApplicationPatch!
   ): Application
 
@@ -18,17 +18,17 @@ export const Mutation = `
   ): [Application]
 
   deleteApplication (
-    name: String!
+    id: String!
   ): Boolean
 
   deleteApplications (
-    names: [String]!
+    ids: [String]!
   ): Boolean
 `
 
 export const Query = `
   applications(filters: [Filter], pagination: Pagination, sortings: [Sorting]): ApplicationList
-  application(name: String!): Application
+  application(id: String!): Application
 `
 
 export const Types = [Application, NewApplication, ApplicationPatch, ApplicationList]

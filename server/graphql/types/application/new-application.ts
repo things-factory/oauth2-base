@@ -5,8 +5,9 @@ export const NewApplication = gql`
     name: String!
     description: String
     email: String
+    url: String
     icon: String
     redirectUrl: String
-    webhookUrl: String
+    webhook: String
   }
 `

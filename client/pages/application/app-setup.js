@@ -4,7 +4,7 @@ import gql from 'graphql-tag'
 import { connect } from 'pwa-helpers/connect-mixin.js'
 import { client, store, PageView } from '@things-factory/shell'
 
-class RegisterApp extends connect(store)(PageView) {
+class AppSetup extends connect(store)(PageView) {
   static get styles() {
     return [
       css`
@@ -22,25 +22,29 @@ class RegisterApp extends connect(store)(PageView) {
   }
 
   render() {
+    var app = this.application || {}
     return html`
       <form>
-        <label for="name">name</label>
-        <input id="name" type="text" name="name" />
+        <label for="name">app name</label>
+        <input id="name" type="text" name="name" .value=${app.name} />
 
         <label for="description">description</label>
-        <input id="description" type="text" name="description" />
+        <input id="description" type="text" name="description" .value=${app.description} />
 
-        <label>email</label>
-        <input id="email" type="text" name="email" />
+        <label for="email">api contact email</label>
+        <input id="email" type="text" name="email" .value=${app.email} />
 
-        <label>icon</label>
-        <input id="icon" type="text" name="icon" />
+        <label for="url">app url</label>
+        <input id="url" type="text" name="url" .value=${app.url} />
 
-        <label>redirectUrl</label>
-        <input id="redirectUrl" type="text" name="redirectUrl" />
+        <label for="icon">icon</label>
+        <input id="icon" type="text" name="icon" .value=${app.icon} />
 
-        <label>webhookUrl</label>
-        <input id="webhookUrl" type="text" name="webhookUrl" />
+        <label for="redirect-url">redirectUrl</label>
+        <input id="redirect-url" type="text" name="redirectUrl" .value=${app.redirectUrl} />
+
+        <label for="webhook">webhook</label>
+        <input id="webhook" type="text" name="webhook" .value=${app.webhook} />
       </form>
       <button @click=${this.submit.bind(this)}>submit</button>
     `
@@ -55,17 +59,19 @@ class RegisterApp extends connect(store)(PageView) {
     const name = formData.get('name')
     const description = formData.get('description')
     const email = formData.get('email')
+    const url = formData.get('url')
     const icon = formData.get('icon')
-    const redirectUrl = formData.get('redirectUrl')
-    const webhookUrl = formData.get('webhookUrl')
+    const redirectUrl = formData.get('redirect-url')
+    const webhook = formData.get('webhook')
 
     const application = {
       name,
       description,
       email,
+      url,
       icon,
       redirectUrl,
-      webhookUrl
+      webhook
     }
 
     const response = await client.mutate({
@@ -89,7 +95,7 @@ class RegisterApp extends connect(store)(PageView) {
      * If this page properties are changed, this callback will be invoked.
      * This callback will be called back only when this page is activated.
      */
-    if (changes.has('registerApp')) {
+    if (changes.has('AppSetup')) {
       /* do something */
     }
   }
@@ -142,13 +148,12 @@ class RegisterApp extends connect(store)(PageView) {
      */
   }
 
-  pageUpdated(changes, lifecycle, before) {
+  async pageUpdated(changes, lifecycle, before) {
     if (this.active) {
       /*
        * this page is activated
        */
-      this.itemId = lifecycle.resourceId
-      this.params = lifecycle.params
+      this.application = await this.fetchApplication()
     } else {
       /* this page is deactivated */
     }
@@ -165,6 +170,27 @@ class RegisterApp extends connect(store)(PageView) {
      * - called right after this.pageDispose()
      */
   }
+
+  async fetchApplication() {
+    const response = await client.query({
+      query: gql`
+        query($id: String!) {
+          application(id: $id) {
+            id
+            name
+            description
+          }
+        }
+      `,
+      variables: {
+        id: this.lifecycle.resourceId
+      }
+    })
+
+    if (!response.errors) {
+      return response.data.application
+    }
+  }
 }
 
-window.customElements.define('register-app', RegisterApp)
+window.customElements.define('app-setup', AppSetup)

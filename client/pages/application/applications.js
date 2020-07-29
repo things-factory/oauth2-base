@@ -1,19 +1,29 @@
-import { html, LitElement } from 'lit-element'
+import { html, css, LitElement } from 'lit-element'
+import gql from 'graphql-tag'
 import { connect } from 'pwa-helpers/connect-mixin.js'
-import { store, PageView } from '@things-factory/shell'
+import { client, store, PageView } from '@things-factory/shell'
 
 class Applications extends connect(store)(PageView) {
   static get properties() {
     return {
-      applications: String
+      applications: Array
     }
   }
 
   render() {
+    var apps = this.applications || []
+
     return html`
-      <section>
-        <h2>applications</h2>
-      </section>
+      <ul>
+        ${apps.map(
+          app => html`
+        <li>
+          <h2><a href=${`app-setup/${app.id}`}>${app.name}</a></h3>
+          <h3>${app.description}</h3>
+        </li>
+      `
+        )}
+      </ul>
     `
   }
 
@@ -75,13 +85,12 @@ class Applications extends connect(store)(PageView) {
      */
   }
 
-  pageUpdated(changes, lifecycle, before) {
+  async pageUpdated(changes, lifecycle, before) {
     if (this.active) {
       /*
        * this page is activated
        */
-      this.itemId = lifecycle.resourceId
-      this.params = lifecycle.params
+      this.applications = (await this.fetchApplications()).items
     } else {
       /* this page is deactivated */
     }
@@ -99,7 +108,7 @@ class Applications extends connect(store)(PageView) {
      */
   }
 
-  async fetchApplications({ page, limit, sorters = [] }) {
+  async fetchApplications() {
     const response = await client.query({
       query: gql`
         query {
@@ -107,11 +116,7 @@ class Applications extends connect(store)(PageView) {
             items {
               id
               name
-              platform
-              storeId
-              countryCode
-              status
-              updatedAt
+              description
             }
             total
           }
@@ -120,10 +125,7 @@ class Applications extends connect(store)(PageView) {
     })
 
     if (!response.errors) {
-      return {
-        total: response.data.applications.total || 0,
-        records: response.data.applications.items || []
-      }
+      return response.data.applications
     }
   }
 }
