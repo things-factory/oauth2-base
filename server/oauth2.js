@@ -1,15 +1,10 @@
-/**
- * Module dependencies.
- */
-var oauth2orize = require('oauth2orize'),
-  passport = require('passport'),
-  login = require('connect-ensure-login'),
-  db = require('./db')
+import crypto from 'crypto'
+import oauth2orize from 'oauth2orize-koa'
+// import passport from 'passport'
+import login from 'connect-ensure-login'
 
 import { getRepository } from 'typeorm'
 import { Application, AuthToken, AuthTokenType } from './entities'
-
-import { makeAuthToken, saveAuthToken } from './controllers/utils'
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer()
@@ -52,10 +47,19 @@ server.deserializeClient(function (id) {
 // values, and will be exchanged for an access token.
 
 server.grant(
-  oauth2orize.grant.code(async function (app, redirectUrl, user, ares) {
-    var token = makeAuthToken(16)
-    saveAuthToken(user.id, token, AuthTokenType.GRANT)
-    /* TODO app, redirectUrl, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */
+  oauth2orize.grant.code(async function (client, redirectUrl, user, ares) {
+    var token = crypto.randomBytes(16).toString('hex')
+
+    const repository = getRepository(AuthToken)
+    await repository.save({
+      userId: user.id,
+      appKey: client.appKey,
+      token: token,
+      type: AuthTokenType.GRANT,
+      scope: ''
+    })
+
+    /* TODO client, redirectUrl, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */
     /* TODO AuthTokenType에 GRANT를 추가한다. */
     return token
   })
@@ -69,54 +73,30 @@ server.grant(
 
 server.exchange(
   oauth2orize.exchange.code(async function (client, token, redirectUrl) {
-    /* client is instance of application */
     const repository = getRepository(AuthToken)
-    var authToken = await repository.findOne({
+    var grantToken = await repository.findOne({
       token
     })
 
-    if (client.appKey !== authToken.appKey) {
+    if (client.appKey !== grantToken.appKey) {
       return false
     }
-    if (redirectUrl !== authToken.redirectUrl) {
+    if (redirectUrl !== grantToken.redirectUrl) {
       return false
     }
 
-    await repository.delete(authToken.id)
-    var token4accesstoken = makeAuthToken(256) // 256 bytes token
-    // var at = new AccessToken(token4accesstoken, code.userId, code.appKey, code.scope)
-    saveAuthToken(client.appKey, token, AuthTokenType.ACTIVATION)
-    return token4accesstoken
-  })
+    await repository.delete(grantToken.id)
+    var token = crypto.randomBytes(256).toString('hex')
 
-  oauth2orize.exchange.code(function (client, code, redirectURI, done) {
-    db.authorizationCodes.find(code, function (err, authCode) {
-      if (err) {
-        return done(err)
-      }
-      if (authCode === undefined) {
-        return done(null, false)
-      }
-      if (client.id !== authCode.clientID) {
-        return done(null, false)
-      }
-      if (redirectURI !== authCode.redirectURI) {
-        return done(null, false)
-      }
-
-      db.authorizationCodes.delete(code, function (err) {
-        if (err) {
-          return done(err)
-        }
-        var token = makeAuthToken(256)
-        db.accessTokens.save(token, authCode.userID, authCode.clientID, function (err) {
-          if (err) {
-            return done(err)
-          }
-          done(null, token)
-        })
-      })
+    await repository.save({
+      userId: grantToken.userId,
+      appKey: client.appKey,
+      token: token,
+      type: AuthTokenType.ACTIVATION,
+      scope: ''
     })
+
+    return token
   })
 )
 
