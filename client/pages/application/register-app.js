@@ -23,31 +23,37 @@ class RegisterApp extends connect(store)(PageView) {
 
   render() {
     return html`
-      <label for="name">name</label>
-      <input id="name" type="text" name="name" />
+      <form>
+        <label for="name">name</label>
+        <input id="name" type="text" name="name" />
 
-      <label for="description">description</label>
-      <input id="description" type="text" name="description" />
+        <label for="description">description</label>
+        <input id="description" type="text" name="description" />
 
-      <label>redirectUrl</label>
-      <input id="redirect-url" type="text" name="redirect-url" />
+        <label for="app-url">app url</label>
+        <input id="app-url" type="text" name="url" />
 
-      <button @click=${this.createApplication.bind(this)}>create application</button>
+        <label for="email">contact email</label>
+        <input id="email" type="text" name="email" />
+
+        <label for="description">redirectUrl</label>
+        <input id="redirect-url" type="text" name="redirectUrl" />
+
+        <button @click=${this.createApplication.bind(this)}>create application</button>
+      </form>
     `
   }
 
   async createApplication(e) {
-    const name = this.renderRoot.querySelector('#name').value
-    const description = this.renderRoot.querySelector('#description').value
-    const redirectUrl = this.renderRoot.querySelector('#redirect-url').value
+    e.preventDefault()
 
-    const application = {
-      name,
-      description,
-      url: 'zzzz',
-      email: 'xxxx',
-      redirectUrl
-    }
+    const form = this.renderRoot.querySelector('form')
+    const formData = new FormData(form)
+
+    const application = Array.from(formData.entries()).reduce((application, [key, value]) => {
+      application[key] = value
+      return application
+    }, {})
 
     const response = await client.mutate({
       mutation: gql`

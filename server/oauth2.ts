@@ -1,9 +1,8 @@
 import crypto from 'crypto'
 import oauth2orize from 'oauth2orize-koa'
-// import passport from 'passport'
-import login from 'connect-ensure-login'
 
 import { getRepository } from 'typeorm'
+import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
 import { Application, AuthToken, AuthTokenType } from './entities'
 
 // create OAuth 2.0 server
@@ -22,11 +21,11 @@ var server = oauth2orize.createServer()
 // simple matter of serializing the client's ID, and deserializing by finding
 // the client by ID from the database.
 
-server.serializeClient(function (client) {
+server.serializeClient(async function (client) {
   return client.id
 })
 
-server.deserializeClient(function (id) {
+server.deserializeClient(async function (id) {
   const repository = getRepository(Application)
 
   return await repository.findOne(id)
@@ -86,17 +85,17 @@ server.exchange(
     }
 
     await repository.delete(grantToken.id)
-    var token = crypto.randomBytes(256).toString('hex')
+    var activationToken = crypto.randomBytes(256).toString('hex')
 
     await repository.save({
       userId: grantToken.userId,
       appKey: client.appKey,
-      token: token,
+      token: activationToken,
       type: AuthTokenType.ACTIVATION,
       scope: ''
     })
 
-    return token
+    return activationToken
   })
 )
 
@@ -116,19 +115,20 @@ server.exchange(
 // authorization).  We accomplish that here by routing through `ensureLoggedIn()`
 // first, and rendering the `dialog` view.
 
-exports.authorization = [
-  login.ensureLoggedIn(),
-  server.authorization(function (clientID, redirectURI, done) {
-    db.clients.findByClientId(clientID, function (err, client) {
-      if (err) {
-        return done(err)
+export const authorization = [
+  jwtAuthenticateMiddleware,
+  server.authorize(async function (clientID, redirectURI) {
+    const repository = getRepository(Application)
+
+    try {
+      const client = await repository.findOne(clientID)
+      if (!client.redirectUrl != redirectURI) {
+        return false
       }
-      // WARNING: For security purposes, it is highly advisable to check that
-      //          redirectURI provided by the client matches one registered with
-      //          the server.  For simplicity, this example does not.  You have
-      //          been warned.
-      return done(null, client, redirectURI)
-    })
+      return [client, client.redirectUrl]
+    } catch (e) {
+      return false
+    }
   }),
   function (req, res) {
     res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client })
@@ -142,7 +142,7 @@ exports.authorization = [
 // client, the above grant middleware configured above will be invoked to send
 // a response.
 
-exports.decision = [login.ensureLoggedIn(), server.decision()]
+export const decision = [jwtAuthenticateMiddleware, server.decision]
 
 // token endpoint
 //
@@ -151,8 +151,4 @@ exports.decision = [login.ensureLoggedIn(), server.decision()]
 // exchange middleware will be invoked to handle the request.  Clients must
 // authenticate when making requests to this endpoint.
 
-exports.token = [
-  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
-  server.token(),
-  server.errorHandler()
-]
+export const token = [jwtAuthenticateMiddleware, server.token, server.errorHandler]

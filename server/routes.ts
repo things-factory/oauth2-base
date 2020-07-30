@@ -1,8 +1,4 @@
-import oauth2orize from 'oauth2orize-koa'
-import { getRepository } from 'typeorm'
-import { makeAuthToken, saveAuthToken } from './controllers/utils'
-import { AuthToken, AuthTokenType } from './entities'
-import oauth2 from './oauth2'
+import { authorization, decision, token } from './oauth2'
 
 process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => {
   /*
@@ -15,6 +11,11 @@ process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => 
    * ]
    * fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
    */
+  var paths = [
+    // static pages
+    'oauth-dialog'
+  ]
+  fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
 })
 
 process.on('bootstrap-module-route' as any, (app, routes) => {
@@ -24,31 +25,17 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
    * ex) routes.get('/path', async(context, next) => {})
    * ex) routes.post('/path', async(context, next) => {})
    */
-  // var server = oauth2orize.createServer()
-  // server.grant(
-  //   oauth2orize.grant.code(async function (app, redirectUrl, user, ares) {
-  //     var token = makeAuthToken()
-  //     saveAuthToken(user.id, token, AuthTokenType.GRANT)
-  //     /* TODO app, redirectUrl, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */
-  //     /* TODO AuthTokenType에 GRANT를 추가한다. */
-  //     return token
-  //   })
-  // )
-  // server.exchange(
-  //   oauth2orize.exchange.code(async function (app, token, redirectUrl) {
-  //     var authToken = await getRepository(AuthToken).findOne({
-  //       token
-  //     })
-  //     if (app.appKey !== authToken.appKey) {
-  //       return false
-  //     }
-  //     if (redirectUrl !== authToken.redirectUrl) {
-  //       return false
-  //     }
-  //     var token4accesstoken = makeAuthToken() // 256 bytes token
-  //     // var at = new AccessToken(token4accesstoken, code.userId, code.appKey, code.scope)
-  //     saveAuthToken(app.appKey, token, AuthTokenType.ACTIVATION)
-  //     return token4accesstoken
-  //   })
-  // )
+
+  routes.get('/oauth/authorize', ...authorization)
+  routes.post('/oauth/decision', ...decision)
+  routes.post('/oauth/token', ...token)
+
+  // static pages
+  routes.get('/oauth-dialog', async (context, next) => {
+    await context.render('auth-page', {
+      pageElement: 'oauth-dialog',
+      elementScript: '/oauth-dialog.js',
+      data: {}
+    })
+  })
 })

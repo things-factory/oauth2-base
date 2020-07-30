@@ -5,6 +5,10 @@ export default {
   route,
   routes: [
     {
+      tagname: 'oauth-dialog',
+      page: 'oauth-dialog'
+    },
+    {
       tagname: 'application-page',
       page: 'application'
     },

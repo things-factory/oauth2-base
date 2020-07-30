@@ -23,49 +23,51 @@ class Application extends connect(store)(PageView) {
   render() {
     var app = this.application || {}
     return html`
-      <label for="name">app name</label>
-      <input id="name" type="text" name="name" .value=${app.name} />
+      <form>
+        <label for="name">app name</label>
+        <input id="name" type="text" name="name" .value=${app.name} />
 
-      <label for="description">description</label>
-      <input id="description" type="text" name="description" .value=${app.description} />
+        <label for="description">description</label>
+        <input id="description" type="text" name="description" .value=${app.description} />
 
-      <label for="email">api contact email</label>
-      <input id="email" type="text" name="email" .value=${app.email} />
+        <label for="email">api contact email</label>
+        <input id="email" type="text" name="email" .value=${app.email} />
 
-      <label for="url">app url</label>
-      <input id="url" type="text" name="url" .value=${app.url} />
+        <label for="url">app url</label>
+        <input id="url" type="text" name="url" .value=${app.url} />
 
-      <label for="icon">icon</label>
-      <input id="icon" type="text" name="icon" .value=${app.icon} />
+        <label for="icon">icon</label>
+        <input id="icon" type="text" name="icon" .value=${app.icon} />
 
-      <label for="redirect-url">redirectUrl</label>
-      <input id="redirect-url" type="text" name="redirect-url" .value=${app.redirectUrl} />
+        <label for="redirect-url">redirectUrl</label>
+        <input id="redirect-url" type="text" name="redirectUrl" .value=${app.redirectUrl} />
 
-      <label for="webhook">webhook</label>
-      <input id="webhook" type="text" name="webhook" .value=${app.webhook} />
+        <label for="webhook">webhook</label>
+        <input id="webhook" type="text" name="webhook" .value=${app.webhook} />
 
-      <br />
-      <h3>app credentials</h3>
+        <br />
+        <h3>app credentials</h3>
 
-      <label for="app-key">appKey</label>
-      <input id="app-key" type="text" name="appKey" .value=${app.appKey} disabled />
-      <button>copy appKey</button>
+        <label for="app-key">appKey</label>
+        <input id="app-key" type="text" name="appKey" .value=${app.appKey} disabled />
+        <button>copy appKey</button>
 
-      <label for="app-secret">appSecret</label>
-      <input id="app-secret" type="text" name="app-secret" .value=${app.appSecret} disabled />
-      <div>created 6 days ago</div>
-      <button>copy app-secret</button>
+        <label for="app-secret">appSecret</label>
+        <input id="app-secret" type="text" name="appSecret" .value=${app.appSecret} disabled />
+        <div>created 6 days ago</div>
+        <button>copy app-secret</button>
 
-      <label for="refresh-token">refresh token</label>
-      <input id="refresh-token" type="text" name="refresh-token" .value=${app.refreshToken} disabled />
-      <div>expires 1 hour</div>
-      <button>copy refresh token</button>
+        <label for="refresh-token">refresh token</label>
+        <input id="refresh-token" type="text" name="refreshToken" .value=${app.refreshToken} disabled />
+        <div>expires 1 hour</div>
+        <button>copy refresh token</button>
 
-      <button>generate new secret</button>
-      <button>generate new refresh token</button>
+        <button>generate new secret</button>
+        <button>generate new refresh token</button>
 
-      <button @click=${this.updateApplication.bind(this)}>update</button>
-      <button @click=${this.deleteApplication.bind(this)}>delete this app</button>
+        <button @click=${this.updateApplication.bind(this)}>update</button>
+        <button @click=${this.deleteApplication.bind(this)}>delete this app</button>
+      </form>
     `
   }
 
@@ -177,24 +179,16 @@ class Application extends connect(store)(PageView) {
     this.application = response.data.application
   }
 
-  async updateApplication() {
-    const name = this.renderRoot.querySelector('#name').value
-    const description = this.renderRoot.querySelector('#description').value
-    const email = this.renderRoot.querySelector('#email').value
-    const url = this.renderRoot.querySelector('#url').value
-    const icon = this.renderRoot.querySelector('#icon').value
-    const redirectUrl = this.renderRoot.querySelector('#redirect-url').value
-    const webhook = this.renderRoot.querySelector('#webhook').value
+  async updateApplication(e) {
+    e.preventDefault()
 
-    const patch = {
-      name,
-      description,
-      email,
-      url,
-      icon,
-      redirectUrl,
-      webhook
-    }
+    const form = this.renderRoot.querySelector('form')
+    const formData = new FormData(form)
+
+    const patch = Array.from(formData.entries()).reduce((patch, [key, value]) => {
+      patch[key] = value
+      return patch
+    }, {})
 
     const id = this.lifecycle.resourceId
 
