@@ -5,8 +5,8 @@ export default {
   route,
   routes: [
     {
-      tagname: 'oauth-dialog',
-      page: 'oauth-dialog'
+      tagname: 'oauth-decision',
+      page: 'oauth-decision'
     },
     {
       tagname: 'application-page',

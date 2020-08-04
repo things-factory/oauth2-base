@@ -6,6 +6,8 @@ import { Application, AuthToken, AuthTokenType } from '../entities'
 
 export const oauth2Router = new Router()
 
+oauth2Router.use(jwtAuthenticateMiddleware)
+
 // user authorization endpoint
 //
 // `authorization` middleware accepts a `validate` callback which is
@@ -23,7 +25,6 @@ export const oauth2Router = new Router()
 // first, and rendering the `dialog` view.
 oauth2Router.get(
   '/admin/oauth/authorize',
-  jwtAuthenticateMiddleware,
   oauth2orizeServer.authorize(async function (clientID, redirectURI) {
     const repository = getRepository(Application)
 
@@ -44,6 +45,10 @@ oauth2Router.get(
   }),
   async function (context, next) {
     const { oauth2, user } = context.state
+    if (!user) {
+      // TODO signin 후에 어떻게 다시 여기에 들어올 수 있게 만들까 ?
+      return context.redirect('/signin')
+    }
 
     await context.render('oauth-page', {
       pageElement: 'oauth-decision',
@@ -64,7 +69,7 @@ oauth2Router.get(
 // client, the above grant middleware configured above will be invoked to send
 // a response.
 
-oauth2Router.post('/admin/oauth/decision', jwtAuthenticateMiddleware, oauth2orizeServer.decision)
+oauth2Router.post('/admin/oauth/decision', oauth2orizeServer.decision)
 
 // token endpoint
 //
@@ -73,18 +78,18 @@ oauth2Router.post('/admin/oauth/decision', jwtAuthenticateMiddleware, oauth2oriz
 // exchange middleware will be invoked to handle the request.  Clients must
 // authenticate when making requests to this endpoint.
 
-oauth2Router.post(
-  '/admin/oauth/access_token',
-  jwtAuthenticateMiddleware,
-  oauth2orizeServer.token,
-  oauth2orizeServer.errorHandler
-)
+oauth2Router.post('/admin/oauth/access_token', oauth2orizeServer.token, oauth2orizeServer.errorHandler)
 
 // static pages
-oauth2Router.get('/oauth-dialog', async (context, next) => {
-  await context.render('auth-page', {
-    pageElement: 'oauth-dialog',
-    elementScript: '/oauth-dialog.js',
+oauth2Router.get('/oauth-decision', async (context, next) => {
+  const { oauth2, user } = context.state
+  if (!user) {
+    return context.redirect('/signin')
+  }
+
+  await context.render('oauth-page', {
+    pageElement: 'oauth-decision',
+    elementScript: '/oauth-decision.js',
     data: {}
   })
 })

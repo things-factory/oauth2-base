@@ -17,7 +17,7 @@ process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => 
   var paths = [
     // static pages
     'admin',
-    'oauth-dialog',
+    'oauth-decision',
     'oauth'
   ]
 
