@@ -5,7 +5,7 @@ import '@things-factory/layout-ui/client/layouts/snack-bar'
 import { html } from 'lit-element'
 import { AbstractAuthPage } from '../components/abstract-auth-page'
 import '../components/profile-component'
-export class OauthDialog extends AbstractAuthPage {
+export class OauthDecision extends AbstractAuthPage {
   get pageName() {
     return 'forgot password'
   }
@@ -95,4 +95,4 @@ export class OauthDialog extends AbstractAuthPage {
   }
 }
 
-customElements.define('oauth-dialog', OauthDialog)
+customElements.define('oauth-decision', OauthDecision)

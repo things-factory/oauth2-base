@@ -1,4 +1,7 @@
-import { authorization, decision, token } from './oauth2'
+import { oauth2Router } from './routers'
+import session from 'koa-session'
+
+import Subdomain from 'koa-subdomain'
 
 process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => {
   /*
@@ -13,8 +16,11 @@ process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => 
    */
   var paths = [
     // static pages
-    'oauth-dialog'
+    'admin',
+    'oauth-dialog',
+    'oauth'
   ]
+
   fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
 })
 
@@ -25,17 +31,11 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
    * ex) routes.get('/path', async(context, next) => {})
    * ex) routes.post('/path', async(context, next) => {})
    */
+  app.keys = ['im a newer secret', 'i like turtle']
+  app.use(session(app))
 
-  routes.get('/oauth/authorize', ...authorization)
-  routes.post('/oauth/decision', ...decision)
-  routes.post('/oauth/token', ...token)
+  const subdomain = new Subdomain()
 
-  // static pages
-  routes.get('/oauth-dialog', async (context, next) => {
-    await context.render('auth-page', {
-      pageElement: 'oauth-dialog',
-      elementScript: '/oauth-dialog.js',
-      data: {}
-    })
-  })
+  subdomain.use('*', oauth2Router.routes())
+  app.use(subdomain.routes())
 })
