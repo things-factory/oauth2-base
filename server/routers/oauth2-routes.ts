@@ -46,16 +46,16 @@ oauth2Router.get(
   async function (context, next) {
     const { oauth2, user } = context.state
     if (!user) {
-      // TODO signin 후에 어떻게 다시 여기에 들어올 수 있게 만들까 ?
-      return context.redirect('/signin')
+      return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
     }
 
+    console.log('user', user)
     await context.render('oauth-page', {
       pageElement: 'oauth-decision',
       elementScript: '/oauth-decision.js',
       data: {
         transactionID: oauth2.transactionID,
-        user, // TODO confirm
+        user,
         client: oauth2.client
       }
     })
@@ -84,7 +84,7 @@ oauth2Router.post('/admin/oauth/access_token', oauth2orizeServer.token, oauth2or
 oauth2Router.get('/oauth-decision', async (context, next) => {
   const { oauth2, user } = context.state
   if (!user) {
-    return context.redirect('/signin')
+    return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
   }
 
   await context.render('oauth-page', {
