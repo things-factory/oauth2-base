@@ -37,5 +37,6 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
   const subdomain = new Subdomain()
 
   subdomain.use('*', oauth2Router.routes())
+
   app.use(subdomain.routes())
 })

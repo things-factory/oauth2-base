@@ -45,11 +45,12 @@ server.deserializeClient(async function (id) {
 // values, and will be exchanged for an access token.
 
 server.grant(
-  oauth2orize.grant.code(async function (client, redirectUrl, user, ares) {
+  oauth2orize.grant.code(async (client, redirectUrl, user, ares) => {
     var token = crypto.randomBytes(16).toString('hex')
 
     const repository = getRepository(AuthToken)
     await repository.save({
+      name: client.appKey + ':' + user.id,
       userId: user.id,
       appKey: client.appKey,
       token: token,
@@ -59,6 +60,7 @@ server.grant(
 
     /* TODO client, redirectUrl, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */
     /* TODO AuthTokenType에 GRANT를 추가한다. */
+
     return token
   })
 )
@@ -70,8 +72,9 @@ server.grant(
 // code.
 
 server.exchange(
-  oauth2orize.exchange.code(async function (client, token, redirectUrl) {
+  oauth2orize.exchange.code(async (client, token, redirectUrl) => {
     const repository = getRepository(AuthToken)
+
     var grantToken = await repository.findOne({
       token
     })
@@ -79,14 +82,16 @@ server.exchange(
     if (client.appKey !== grantToken.appKey) {
       return false
     }
-    if (redirectUrl !== grantToken.redirectUrl) {
-      return false
-    }
+    // TODO revival....
+    // if (redirectUrl !== grantToken.redirectUrl) {
+    //   return false
+    // }
 
     await repository.delete(grantToken.id)
     var activationToken = crypto.randomBytes(256).toString('hex')
 
     await repository.save({
+      name: `${grantToken.userId}:${client.appKey}`,
       userId: grantToken.userId,
       appKey: client.appKey,
       token: activationToken,

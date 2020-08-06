@@ -3,10 +3,30 @@ import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
 import { server as oauth2orizeServer } from '../oauth2'
 import { getRepository } from 'typeorm'
 import { Application, AuthToken, AuthTokenType } from '../entities'
-
+import passport from 'koa-passport'
+import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
 export const oauth2Router = new Router()
 
-oauth2Router.use(jwtAuthenticateMiddleware)
+passport.use(
+  new ClientPasswordStrategy((clientId, clientSecret, done) => {
+    const repository = getRepository(Application)
+
+    repository
+      .findOne({
+        appKey: clientId
+      })
+      .then(client => {
+        if (!client /*|| client.appSecret != clientSecret*/) {
+          console.log('failed client password strategy', client, client && client.appSecret, clientSecret)
+          done(null, false)
+          return
+        }
+
+        done(null, client)
+      })
+      .catch(err => done(err))
+  })
+)
 
 // user authorization endpoint
 //
@@ -25,6 +45,7 @@ oauth2Router.use(jwtAuthenticateMiddleware)
 // first, and rendering the `dialog` view.
 oauth2Router.get(
   '/admin/oauth/authorize',
+  jwtAuthenticateMiddleware,
   oauth2orizeServer.authorize(async function (clientID, redirectURI) {
     const repository = getRepository(Application)
 
@@ -49,15 +70,10 @@ oauth2Router.get(
       return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
     }
 
-    console.log('user', user)
-    await context.render('oauth-page', {
-      pageElement: 'oauth-decision',
-      elementScript: '/oauth-decision.js',
-      data: {
-        transactionID: oauth2.transactionID,
-        user,
-        client: oauth2.client
-      }
+    await context.render('oauth-decision-page', {
+      transactionID: oauth2.transactionID,
+      user,
+      client: oauth2.client
     })
   }
 )
@@ -69,7 +85,7 @@ oauth2Router.get(
 // client, the above grant middleware configured above will be invoked to send
 // a response.
 
-oauth2Router.post('/admin/oauth/decision', oauth2orizeServer.decision)
+oauth2Router.post('/admin/oauth/decision', jwtAuthenticateMiddleware, ...oauth2orizeServer.decision())
 
 // token endpoint
 //
@@ -78,18 +94,28 @@ oauth2Router.post('/admin/oauth/decision', oauth2orizeServer.decision)
 // exchange middleware will be invoked to handle the request.  Clients must
 // authenticate when making requests to this endpoint.
 
-oauth2Router.post('/admin/oauth/access_token', oauth2orizeServer.token, oauth2orizeServer.errorHandler)
+oauth2Router.post(
+  '/admin/oauth/access_token',
+  // passport.authenticate('basic', { session: false }),
+  // jwtAuthenticateMiddleware,
+  passport.authenticate('oauth2-client-password', { session: false }),
+  oauth2orizeServer.token(),
+  oauth2orizeServer.errorHandler()
+)
 
-// static pages
-oauth2Router.get('/oauth-decision', async (context, next) => {
-  const { oauth2, user } = context.state
-  if (!user) {
-    return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
+oauth2Router.get(
+  '/admin/warehouse.json',
+  // passport.authenticate('oauth2-client-password', { session: false }),
+  async (context, next) => {
+    // TODO authenticate with access_token
+    var { access_token } = context.request.query
+    var { oauth2 } = context.state
+    var client = oauth2?.client || {}
+
+    context.body = {
+      client_id: client.id,
+      name: client.name,
+      scope: client.scope
+    }
   }
-
-  await context.render('oauth-page', {
-    pageElement: 'oauth-decision',
-    elementScript: '/oauth-decision.js',
-    data: {}
-  })
-})
+)
