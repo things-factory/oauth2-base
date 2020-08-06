@@ -1,10 +1,12 @@
 import Router from 'koa-router'
-import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
+import { jwtAuthenticateMiddleware, User } from '@things-factory/auth-base'
 import { server as oauth2orizeServer } from '../oauth2'
 import { getRepository } from 'typeorm'
 import { Application, AuthToken, AuthTokenType } from '../entities'
 import passport from 'koa-passport'
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
+import { Strategy as BearerStrategy } from 'passport-http-bearer'
+
 export const oauth2Router = new Router()
 
 passport.use(
@@ -23,6 +25,51 @@ passport.use(
         }
 
         done(null, client)
+      })
+      .catch(err => done(err))
+  })
+)
+
+/**
+ * BearerStrategy
+ *
+ * This strategy is used to authenticate either users or clients based on an access token
+ * (aka a bearer token).  If a user, they must have previously authorized a client
+ * application, which is issued an access token to make requests on behalf of
+ * the authorizing user.
+ */
+passport.use(
+  new BearerStrategy((accessToken, done) => {
+    const repository = getRepository(AuthToken)
+
+    repository
+      .findOne({
+        token: accessToken
+      })
+      .then(authToken => {
+        const { type, appKey, userId } = authToken
+        // TODO should check auth type
+        if (!userId) {
+          var info = { scope: '*' }
+          getRepository(User)
+            .findOne({
+              id: userId
+            })
+            .then(user => {
+              done(null, user, info)
+            })
+            .catch(err => done(err))
+        } else {
+          var info = { scope: '*' }
+          getRepository(Application)
+            .findOne({
+              appKey
+            })
+            .then(client => {
+              done(null, client, info)
+            })
+            .catch(err => done(err))
+        }
       })
       .catch(err => done(err))
   })
@@ -105,17 +152,18 @@ oauth2Router.post(
 
 oauth2Router.get(
   '/admin/warehouse.json',
-  // passport.authenticate('oauth2-client-password', { session: false }),
+  passport.authenticate('bearer', { session: false }),
   async (context, next) => {
-    // TODO authenticate with access_token
-    var { access_token } = context.request.query
-    var { oauth2 } = context.state
-    var client = oauth2?.client || {}
+    var { user: application } = context.state
 
     context.body = {
-      client_id: client.id,
-      name: client.name,
-      scope: client.scope
+      warehouse: {
+        id: application.appKey,
+        warehouse_owner: application.name,
+        name: application.name,
+        domain: 'xxxx', // vhost에서 가져오라.
+        email: application.userId
+      }
     }
   }
 )
