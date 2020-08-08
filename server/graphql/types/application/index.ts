@@ -16,6 +16,10 @@ export const Mutation = `
   deleteApplication (
     id: String!
   ): Boolean
+
+  generateApplicationSecret (
+    id: String!
+  ): Application
 `
 
 export const Query = `

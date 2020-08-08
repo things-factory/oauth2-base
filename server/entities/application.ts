@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 import {
   CreateDateColumn,
   UpdateDateColumn,
@@ -8,10 +10,22 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
-import { User } from '@things-factory/auth-base'
+import { config } from '@things-factory/env'
+import { User, UserStatus } from '@things-factory/auth-base'
+const ORMCONFIG = config.get('ormconfig', {})
+const DATABASE_TYPE = ORMCONFIG.type
+
+var SECRET = config.get('SECRET')
+if (!SECRET) {
+  if (process.env.NODE_ENV == 'production') {
+    throw new TypeError('SECRET key not configured.')
+  } else {
+    SECRET = '0xD58F835B69D207A76CC5F84a70a1D0d4C79dAC95'
+  }
+}
 
 @Entity()
-@Index('ix_application_0', (application: Application) => [application.name], { unique: true })
+@Index('ix_application_0', (application: Application) => [application.appKey], { unique: true })
 export class Application {
   @PrimaryGeneratedColumn('uuid')
   id: string
@@ -58,6 +72,13 @@ export class Application {
   })
   refreshToken: string
 
+  @Column({
+    type: DATABASE_TYPE == 'postgres' || DATABASE_TYPE == 'mysql' || DATABASE_TYPE == 'mariadb' ? 'enum' : 'smallint',
+    enum: UserStatus,
+    default: UserStatus.INACTIVE
+  })
+  status: UserStatus
+
   @CreateDateColumn()
   createdAt: Date
 
@@ -73,4 +94,23 @@ export class Application {
     nullable: true
   })
   updater: User
+
+  /* signing for jsonwebtoken */
+  async sign() {
+    var user = {
+      id: this.appKey,
+      userType: 'APP',
+      status: this.status
+    }
+
+    return await jwt.sign(user, SECRET, {
+      expiresIn: '7d',
+      issuer: 'hatiolab.com',
+      subject: 'app'
+    })
+  }
+
+  static generateAppSecret() {
+    return crypto.randomBytes(16).toString('hex')
+  }
 }

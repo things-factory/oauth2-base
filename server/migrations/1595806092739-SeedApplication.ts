@@ -10,7 +10,8 @@ const SEED = [
     icon: '',
     redirectUrl: 'http://mms.opa-x.com:3000/callback-operato',
     webhook: 'http://mms.opa-x.com:3000/webhook-operato',
-    appKey: '20143978290-1834'
+    appKey: '20143978290-1834',
+    appSecret: Application.generateAppSecret()
   }
 ]
 

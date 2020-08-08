@@ -3,8 +3,8 @@ import gql from 'graphql-tag'
 export const AuthToken = gql`
   type AuthToken {
     id: String
-    name: String
     domain: Domain
+    name: String
     description: String
     userId: String
     type: String
