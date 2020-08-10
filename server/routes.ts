@@ -1,7 +1,16 @@
 import { oauth2Router } from './routers'
 import session from 'koa-session'
-
 import Subdomain from 'koa-subdomain'
+import { config } from '@things-factory/env'
+
+var SECRET = config.get('SECRET')
+if (!SECRET) {
+  if (process.env.NODE_ENV == 'production') {
+    throw new TypeError('SECRET key not configured.')
+  } else {
+    SECRET = '0xD58F835B69D207A76CC5F84a70a1D0d4C79dAC95'
+  }
+}
 
 process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => {
   /*
@@ -25,13 +34,7 @@ process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => 
 })
 
 process.on('bootstrap-module-route' as any, (app, routes) => {
-  /*
-   * koa application에 routes 를 추가할 수 있다.
-   *
-   * ex) routes.get('/path', async(context, next) => {})
-   * ex) routes.post('/path', async(context, next) => {})
-   */
-  app.keys = ['im a newer secret', 'i like turtle']
+  app.keys = [SECRET]
   app.use(session(app))
 
   const subdomain = new Subdomain()
