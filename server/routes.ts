@@ -1,4 +1,4 @@
-import { oauth2Router } from './routers'
+import { oauth2Router, vhostRouter } from './routers'
 import session from 'koa-session'
 import Subdomain from 'koa-subdomain'
 import { config } from '@things-factory/env'
@@ -27,7 +27,8 @@ process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => 
     // static pages
     'admin',
     'oauth-decision',
-    'oauth'
+    'oauth',
+    'xxx'
   ]
 
   fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
@@ -39,7 +40,8 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
 
   const subdomain = new Subdomain()
 
-  subdomain.use('*', oauth2Router.routes())
+  subdomain.use('auth', oauth2Router.routes())
+  subdomain.use('*', vhostRouter.routes())
 
   app.use(subdomain.routes())
 })

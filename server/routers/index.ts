@@ -1,1 +1,2 @@
-export * from './oauth2-routes'
+export * from './oauth2-router'
+export * from './vhost-router'
