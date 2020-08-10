@@ -48,10 +48,12 @@ server.grant(
   oauth2orize.grant.code(async (client, redirectUrl, user, ares) => {
     var token = crypto.randomBytes(16).toString('hex')
 
+    // TODO how to get domain ????
+
     const repository = getRepository(AuthToken)
     await repository.save({
       name: client.appKey + ':' + user.id,
-      userId: user.id,
+      user: user,
       appKey: client.appKey,
       token: token,
       type: AuthTokenType.GRANT,
@@ -75,9 +77,12 @@ server.exchange(
   oauth2orize.exchange.code(async (client, token, redirectUrl) => {
     const repository = getRepository(AuthToken)
 
-    var grantToken = await repository.findOne({
-      token
-    })
+    var grantToken = await repository.findOne(
+      {
+        token
+      },
+      { relations: ['user'] }
+    )
 
     if (client.appKey !== grantToken.appKey) {
       return false
@@ -91,8 +96,8 @@ server.exchange(
     var activationToken = crypto.randomBytes(256).toString('hex')
 
     await repository.save({
-      name: `${grantToken.userId}:${client.appKey}`,
-      userId: grantToken.userId,
+      name: `${grantToken.user?.email}:${client.appKey}`,
+      user: grantToken.user,
       appKey: client.appKey,
       token: activationToken,
       type: AuthTokenType.ACTIVATION,

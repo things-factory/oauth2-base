@@ -33,8 +33,10 @@ export class AuthToken {
   })
   description: string
 
-  @Column()
-  userId: string
+  @ManyToOne(type => User, {
+    nullable: true
+  })
+  user: User
 
   @Column()
   appKey: string

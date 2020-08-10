@@ -10,7 +10,9 @@ import { Strategy as BearerStrategy } from 'passport-http-bearer'
 export const oauth2Router = new Router()
 
 passport.use(
+  'oauth2-client-password',
   new ClientPasswordStrategy((clientId, clientSecret, done) => {
+    // TODO AuthToken에서 찾아야 함.
     const repository = getRepository(Application)
 
     repository
@@ -19,7 +21,6 @@ passport.use(
       })
       .then(client => {
         if (!client /*|| client.appSecret != clientSecret*/) {
-          console.log('failed client password strategy', client, client && client.appSecret, clientSecret)
           done(null, false)
           return
         }
@@ -39,37 +40,53 @@ passport.use(
  * the authorizing user.
  */
 passport.use(
+  'bearer',
   new BearerStrategy((accessToken, done) => {
     const repository = getRepository(AuthToken)
 
     repository
-      .findOne({
-        token: accessToken
-      })
+      .findOne(
+        {
+          token: accessToken
+        },
+        { relations: ['domain', 'user'] }
+      )
       .then(authToken => {
-        const { type, appKey, userId } = authToken
+        const { type, appKey, user } = authToken
+
         // TODO should check auth type
-        if (!userId) {
-          var info = { scope: '*' }
-          getRepository(User)
-            .findOne({
-              id: userId
-            })
-            .then(user => {
-              done(null, user, info)
-            })
-            .catch(err => done(err))
-        } else {
-          var info = { scope: '*' }
-          getRepository(Application)
-            .findOne({
-              appKey
-            })
-            .then(client => {
-              done(null, client, info)
-            })
-            .catch(err => done(err))
-        }
+        // if (!user) {
+        //   var info = { scope: '*' }
+        //   getRepository(User)
+        //     .findOne({
+        //       id: userId
+        //     })
+        //     .then(user => {
+        //       done(null, user, info)
+        //     })
+        //     .catch(err => done(err))
+        // } else {
+        var info = { scope: '*' }
+        // TODO should be a
+        getRepository(Application)
+          .findOne({
+            appKey
+          })
+          .then(client => {
+            done(
+              null,
+              {
+                id: appKey,
+                warehouse_owner: client.name,
+                name: client.name,
+                domain: authToken.domain?.name, // vhost에서 가져오라.
+                email: user?.email
+              },
+              info
+            )
+          })
+          .catch(err => done(err))
+        // }
       })
       .catch(err => done(err))
   })
@@ -157,13 +174,7 @@ oauth2Router.get(
     var { user: application } = context.state
 
     context.body = {
-      warehouse: {
-        id: application.appKey,
-        warehouse_owner: application.name,
-        name: application.name,
-        domain: 'xxxx', // vhost에서 가져오라.
-        email: application.userId
-      }
+      warehouse: application
     }
   }
 )
