@@ -16,6 +16,7 @@ export enum AuthTokenType {
   GRANT = 'GRANT'
 }
 
+// TODO name should be changed to 'authcode'
 @Entity()
 @Index('ix_auth-token_0', (authToken: AuthToken) => [authToken.domain, authToken.name], { unique: true })
 export class AuthToken {

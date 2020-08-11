@@ -1,8 +1,38 @@
 import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
+
 import oauth2orize from 'oauth2orize-koa'
 
 import { getRepository } from 'typeorm'
 import { Application, AuthToken, AuthTokenType } from './entities'
+import { sleep } from '@things-factory/utils'
+import { config } from '@things-factory/env'
+
+var SECRET = config.get('SECRET')
+if (!SECRET) {
+  if (process.env.NODE_ENV == 'production') {
+    throw new TypeError('SECRET key not configured.')
+  } else {
+    SECRET = '0xD58F835B69D207A76CC5F84a70a1D0d4C79dAC95'
+  }
+}
+
+/* auth-code signing for jsonwebtoken */
+function generateAuthCode(appKey, redirectUrl) {
+  var credential = {
+    appKey,
+    redirectUrl
+  }
+
+  return jwt.sign(credential, SECRET, {
+    expiresIn: '1m'
+  })
+}
+
+/* auth-code signing for jsonwebtoken */
+function verifyAuthCode(authcode) {
+  return jwt.verify(authcode, SECRET)
+}
 
 // create OAuth 2.0 server
 export const server = oauth2orize.createServer()
@@ -46,8 +76,9 @@ server.deserializeClient(async function (id) {
 
 server.grant(
   oauth2orize.grant.code(async (client, redirectUrl, user, ares, areq) => {
-    var token = crypto.randomBytes(16).toString('hex')
+    var authcode = generateAuthCode(client.appKey, client.redirectUrl) //crypto.randomBytes(256).toString('hex')
 
+    await sleep(1000)
     // TODO how to get domain ????
 
     console.log('\n\n\n\ngrant code', client, redirectUrl, user, ares, areq)
@@ -57,15 +88,16 @@ server.grant(
       name: client.appKey + ':' + user.id,
       user: user,
       appKey: client.appKey,
-      token: token,
+      token: authcode,
       type: AuthTokenType.GRANT,
       scope: ares.scope
+      // domain: user.currentDomain %%%%%%%%%% 도메인을 어떻게 찾느냐 - res로부터 받아야지. %%%%%%%%%%%
     })
 
     /* TODO client, redirectUrl, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */
     /* TODO AuthTokenType에 GRANT를 추가한다. */
 
-    return token
+    return authcode
   })
 )
 
@@ -76,15 +108,28 @@ server.grant(
 // code.
 
 server.exchange(
-  oauth2orize.exchange.code(async (client, token, redirectUrl) => {
+  oauth2orize.exchange.code(async (client, code, redirectUrl) => {
     const repository = getRepository(AuthToken)
 
     var grantToken = await repository.findOne(
       {
-        token
+        token: code
       },
       { relations: ['user'] }
     )
+
+    if (!grantToken) {
+      // authcode not valid
+      return false
+    }
+
+    try {
+      /* 유효기간등을 처리하기 위해서 jwt 로 code를 엔코딩함. */
+      const decoded = verifyAuthCode(code)
+    } catch (e) {
+      console.log(e)
+      return false
+    }
 
     if (client.appKey !== grantToken.appKey) {
       return false

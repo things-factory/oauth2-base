@@ -129,6 +129,7 @@ oauth2Router.get(
     }
   }),
   async function (context, next) {
+    const { subdomains } = context
     const { oauth2, user, domain } = context.state
     if (!user) {
       return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
@@ -138,7 +139,8 @@ oauth2Router.get(
       transactionID: oauth2.transactionID,
       user,
       client: oauth2.client,
-      warehouse: domain?.name || 'unknown'
+      warehouse: subdomains[0],
+      domain: domain
     })
   }
 )
