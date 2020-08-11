@@ -129,7 +129,7 @@ oauth2Router.get(
     }
   }),
   async function (context, next) {
-    const { oauth2, user } = context.state
+    const { oauth2, user, domain } = context.state
     if (!user) {
       return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
     }
@@ -137,7 +137,8 @@ oauth2Router.get(
     await context.render('oauth-decision-page', {
       transactionID: oauth2.transactionID,
       user,
-      client: oauth2.client
+      client: oauth2.client,
+      warehouse: domain?.name || 'unknown'
     })
   }
 )
@@ -149,7 +150,14 @@ oauth2Router.get(
 // client, the above grant middleware configured above will be invoked to send
 // a response.
 
-oauth2Router.post('/admin/oauth/decision', jwtAuthenticateMiddleware, ...oauth2orizeServer.decision())
+oauth2Router.post(
+  '/admin/oauth/decision',
+  jwtAuthenticateMiddleware,
+  ...oauth2orizeServer.decision(function (context) {
+    const { request } = context
+    return request.body
+  })
+)
 
 // token endpoint
 //

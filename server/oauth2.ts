@@ -45,10 +45,12 @@ server.deserializeClient(async function (id) {
 // values, and will be exchanged for an access token.
 
 server.grant(
-  oauth2orize.grant.code(async (client, redirectUrl, user, ares) => {
+  oauth2orize.grant.code(async (client, redirectUrl, user, ares, areq) => {
     var token = crypto.randomBytes(16).toString('hex')
 
     // TODO how to get domain ????
+
+    console.log('\n\n\n\ngrant code', client, redirectUrl, user, ares, areq)
 
     const repository = getRepository(AuthToken)
     await repository.save({
@@ -57,7 +59,7 @@ server.grant(
       appKey: client.appKey,
       token: token,
       type: AuthTokenType.GRANT,
-      scope: ''
+      scope: ares.scope
     })
 
     /* TODO client, redirectUrl, scope 을 담을 수 있도록 verification-token 엔티티를 수정한다. */

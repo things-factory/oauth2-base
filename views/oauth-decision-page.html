@@ -9,7 +9,10 @@
     <p>Do you approve?</p>
 
     <form action="/admin/oauth/decision" method="POST">
-      <input name="transaction_id" type="hidden" value="<%= transactionID %>" />
+      <input name="transaction_id" value="<%= transactionID %>" />
+      <input name="scope" type="text" value="read-order" />
+      <input name="warehouse" type="text" value="<%= warehouse %>" />
+
       <div>
         <input type="submit" value="Allow" id="allow" />
         <input type="submit" value="Deny" name="cancel" id="deny" />
