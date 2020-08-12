@@ -19,7 +19,7 @@ passport.use(
         appKey: clientId
       })
       .then(client => {
-        if (!client /*|| client.appSecret != clientSecret*/) {
+        if (!client || client.appSecret != clientSecret) {
           done(null, false)
           return
         }
@@ -123,7 +123,7 @@ oauth2Router.get('/admin/warehouse.json', jwtAccessTokenMiddleware, async (conte
       id: application.appKey,
       warehouse_owner: application.name,
       name: application.name,
-      domain: domain?.name, // vhost에서 가져오라.
+      domain: domain?.name,
       email
     }
   }
