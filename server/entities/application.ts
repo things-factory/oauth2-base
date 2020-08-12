@@ -84,4 +84,8 @@ export class Application {
   static generateAppSecret() {
     return crypto.randomBytes(16).toString('hex')
   }
+
+  static generateAppKey() {
+    return crypto.randomBytes(16).toString('hex')
+  }
 }
