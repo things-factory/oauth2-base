@@ -11,18 +11,8 @@ import {
 } from 'typeorm'
 import { getRepository } from 'typeorm'
 import { Domain } from '@things-factory/shell'
-import { User, UserStatus, AuthError } from '@things-factory/auth-base'
-import { config } from '@things-factory/env'
+import { SECRET, User, UserStatus, AuthError } from '@things-factory/auth-base'
 import { Application } from '.'
-
-var SECRET = config.get('SECRET')
-if (!SECRET) {
-  if (process.env.NODE_ENV == 'production') {
-    throw new TypeError('SECRET key not configured.')
-  } else {
-    SECRET = '0xD58F835B69D207A76CC5F84a70a1D0d4C79dAC95'
-  }
-}
 
 export enum AuthTokenStatus {
   ACTIVATED = 'ACTIVATED',

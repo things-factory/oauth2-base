@@ -1,15 +1,6 @@
 import { oauth2Router, apiRouter } from './routers'
 import session from 'koa-session'
-import { config } from '@things-factory/env'
-
-var SECRET = config.get('SECRET')
-if (!SECRET) {
-  if (process.env.NODE_ENV == 'production') {
-    throw new TypeError('SECRET key not configured.')
-  } else {
-    SECRET = '0xD58F835B69D207A76CC5F84a70a1D0d4C79dAC95'
-  }
-}
+import { SECRET } from '@things-factory/auth-base'
 
 process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => {
   var paths = [

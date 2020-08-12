@@ -1,8 +1,7 @@
-import { config } from '@things-factory/env'
 import passport from 'passport'
 import { ExtractJwt, Strategy as JWTstrategy } from 'passport-jwt'
 import { AuthToken } from '../entities/auth-token'
-const SECRET = config.get('SECRET', '0xD58F835B69D207A76CC5F84a70a1D0d4C79dAC95')
+import { SECRET } from '@things-factory/auth-base'
 
 passport.use(
   new JWTstrategy(

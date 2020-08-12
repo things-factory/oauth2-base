@@ -12,6 +12,7 @@ import {
 import { User } from '@things-factory/auth-base'
 
 export enum ApplicationStatus {
+  DRAFT = 'DRAFT',
   ACTIVATED = 'ACTIVATED'
 }
 
@@ -58,7 +59,9 @@ export class Application {
   })
   appSecret: string
 
-  @Column()
+  @Column({
+    default: ApplicationStatus.DRAFT
+  })
   status: string
 
   @CreateDateColumn()
