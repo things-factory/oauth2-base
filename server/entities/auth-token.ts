@@ -98,10 +98,12 @@ export class AuthToken {
   }
 
   generateAccessToken() {
-    return this.sign('access-token', '1m')
+    /* how to set expiresIn https://github.com/vercel/ms */
+    return this.sign('access-token', '30d')
   }
 
   generateRefreshToken() {
+    /* how to set expiresIn https://github.com/vercel/ms */
     return this.sign('refresh-token', '1y')
   }
 

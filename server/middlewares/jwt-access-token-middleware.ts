@@ -10,14 +10,15 @@ passport.use(
       secretOrKey: SECRET,
       //we expect the user to send the token as a query parameter with the name 'secret_token'
       jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
         ExtractJwt.fromHeader('authorization'),
         ExtractJwt.fromHeader('x-access-token'),
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
         ExtractJwt.fromUrlQueryParameter('access_token'),
         ExtractJwt.fromBodyField('access_token'),
         req => {
           var token = null
           token = req?.ctx?.cookies?.get('access_token')
+          console.log('token', token)
           return token
         }
       ])
@@ -25,6 +26,7 @@ passport.use(
     async (token, done) => {
       try {
         //Pass the user details to the next middleware
+        console.log('token', token)
         return done(null, token)
       } catch (error) {
         return done(error)
