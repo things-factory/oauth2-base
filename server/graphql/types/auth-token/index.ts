@@ -20,10 +20,6 @@ export const Mutation = `
   deleteAuthToken (
     name: String!
   ): Boolean
-
-  deleteAuthTokens (
-    names: [String]!
-  ): Boolean
 `
 
 export const Query = `

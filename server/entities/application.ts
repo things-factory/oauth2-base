@@ -11,6 +11,10 @@ import {
 } from 'typeorm'
 import { User } from '@things-factory/auth-base'
 
+export enum ApplicationStatus {
+  ACTIVATED = 'ACTIVATED'
+}
+
 @Entity()
 @Index('ix_application_0', (application: Application) => [application.appKey], { unique: true })
 export class Application {

@@ -1,18 +1,17 @@
 import Router from 'koa-router'
-import { jwtAuthenticateMiddleware, User } from '@things-factory/auth-base'
-import { server as oauth2orizeServer } from '../oauth2'
+import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
+import { jwtAccessTokenMiddleware } from '../middlewares/jwt-access-token-middleware'
+import { server as oauth2orizeServer } from './oauth2'
 import { getRepository } from 'typeorm'
-import { Application, AuthToken, AuthTokenType } from '../entities'
+import { Application } from '../entities'
 import passport from 'koa-passport'
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
-import { Strategy as BearerStrategy } from 'passport-http-bearer'
 
 export const oauth2Router = new Router()
 
 passport.use(
   'oauth2-client-password',
   new ClientPasswordStrategy((clientId, clientSecret, done) => {
-    // TODO AuthToken에서 찾아야 함.
     const repository = getRepository(Application)
 
     repository
@@ -26,67 +25,6 @@ passport.use(
         }
 
         done(null, client)
-      })
-      .catch(err => done(err))
-  })
-)
-
-/**
- * BearerStrategy
- *
- * This strategy is used to authenticate either users or clients based on an access token
- * (aka a bearer token).  If a user, they must have previously authorized a client
- * application, which is issued an access token to make requests on behalf of
- * the authorizing user.
- */
-passport.use(
-  'bearer',
-  new BearerStrategy((accessToken, done) => {
-    const repository = getRepository(AuthToken)
-
-    repository
-      .findOne(
-        {
-          token: accessToken
-        },
-        { relations: ['domain', 'user'] }
-      )
-      .then(authToken => {
-        const { type, appKey, user } = authToken
-
-        // TODO should check auth type
-        // if (!user) {
-        //   var info = { scope: '*' }
-        //   getRepository(User)
-        //     .findOne({
-        //       id: userId
-        //     })
-        //     .then(user => {
-        //       done(null, user, info)
-        //     })
-        //     .catch(err => done(err))
-        // } else {
-        var info = { scope: '*' }
-        // TODO should be a
-        getRepository(Application)
-          .findOne({
-            appKey
-          })
-          .then(client => {
-            done(
-              null,
-              {
-                id: appKey,
-                warehouse_owner: client.name,
-                name: client.name,
-                domain: authToken.domain?.name, // vhost에서 가져오라.
-                email: user?.email
-              },
-              info
-            )
-          })
-          .catch(err => done(err))
-        // }
       })
       .catch(err => done(err))
   })
@@ -170,21 +108,23 @@ oauth2Router.post(
 
 oauth2Router.post(
   '/admin/oauth/access_token',
-  // passport.authenticate('basic', { session: false }),
-  // jwtAuthenticateMiddleware,
   passport.authenticate('oauth2-client-password', { session: false }),
   oauth2orizeServer.token(),
   oauth2orizeServer.errorHandler()
 )
 
-oauth2Router.get(
-  '/admin/warehouse.json',
-  passport.authenticate('bearer', { session: false }),
-  async (context, next) => {
-    var { user: application } = context.state
+oauth2Router.get('/admin/warehouse.json', jwtAccessTokenMiddleware, async (context, next) => {
+  const { user, domain, application } = context.state
+  const email = user.email.substring(0, user.id.length)
+  /* TODO user profile을 제공해야함 */
 
-    context.body = {
-      warehouse: application
+  context.body = {
+    warehouse: {
+      id: application.appKey,
+      warehouse_owner: application.name,
+      name: application.name,
+      domain: domain?.name, // vhost에서 가져오라.
+      email
     }
   }
-)
+})

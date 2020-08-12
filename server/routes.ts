@@ -1,6 +1,5 @@
-import { oauth2Router, vhostRouter } from './routers'
+import { oauth2Router, apiRouter } from './routers'
 import session from 'koa-session'
-import Subdomain from 'koa-subdomain'
 import { config } from '@things-factory/env'
 
 var SECRET = config.get('SECRET')
@@ -13,22 +12,11 @@ if (!SECRET) {
 }
 
 process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => {
-  /*
-   * fallback white list를 추가할 수 있다
-   *
-   * ex)
-   * var paths = [
-   *   'aaa',
-   *   'bbb'
-   * ]
-   * fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
-   */
   var paths = [
     // static pages
     'admin',
     'oauth-decision',
-    'oauth',
-    'xxx'
+    'oauth'
   ]
 
   fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
@@ -38,10 +26,6 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
   app.keys = [SECRET]
   app.use(session(app))
 
-  const subdomain = new Subdomain()
-
-  subdomain.use('auth', oauth2Router.routes())
-  subdomain.use('*', vhostRouter.routes())
-
-  app.use(subdomain.routes())
+  app.use(oauth2Router.routes())
+  app.use(apiRouter.routes())
 })

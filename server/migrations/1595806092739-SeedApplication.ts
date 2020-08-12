@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner, getRepository } from 'typeorm'
-import { Application } from '../entities'
+import { Application, ApplicationStatus } from '../entities'
 
 const SEED = [
   {
@@ -11,6 +11,7 @@ const SEED = [
     redirectUrl: 'http://mms.opa-x.com:3000/callback-operato',
     webhook: 'http://mms.opa-x.com:3000/webhook-operato',
     appKey: '20143978290-1834',
+    status: ApplicationStatus.ACTIVATED,
     appSecret: Application.generateAppSecret()
   }
 ]
