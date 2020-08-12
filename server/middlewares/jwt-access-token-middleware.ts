@@ -18,7 +18,6 @@ passport.use(
         req => {
           var token = null
           token = req?.ctx?.cookies?.get('access_token')
-          console.log('token', token)
           return token
         }
       ])
@@ -26,7 +25,6 @@ passport.use(
     async (token, done) => {
       try {
         //Pass the user details to the next middleware
-        console.log('token', token)
         return done(null, token)
       } catch (error) {
         return done(error)
