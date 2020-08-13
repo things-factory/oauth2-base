@@ -11,6 +11,7 @@ passport.use(
     {
       secretOrKey: SECRET,
       jwtFromRequest: ExtractJwt.fromExtractors([
+        /* BearerToken should be ahead of Header */
         ExtractJwt.fromAuthHeaderAsBearerToken(),
         ExtractJwt.fromHeader('authorization'),
         ExtractJwt.fromHeader('x-access-token'),
