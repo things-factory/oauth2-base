@@ -81,7 +81,7 @@ class RegisterApp extends connect(store)(PageView) {
      * If this page properties are changed, this callback will be invoked.
      * This callback will be called back only when this page is activated.
      */
-    if (changes.has('registerApp')) {
+    if (changes.has('application')) {
       /* do something */
     }
   }

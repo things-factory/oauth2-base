@@ -1,11 +1,11 @@
 import { ListParam, convertListParams } from '@things-factory/shell'
 import { getRepository } from 'typeorm'
-import { AuthToken } from '../../../entities'
+import { AppToken } from '../../../entities'
 
-export const authTokensResolver = {
-  async authTokens(_: any, params: ListParam, context: any) {
+export const appTokensResolver = {
+  async appTokens(_: any, params: ListParam, context: any) {
     const convertedParams = convertListParams(params)
-    const [items, total] = await getRepository(AuthToken).findAndCount({
+    const [items, total] = await getRepository(AppToken).findAndCount({
       ...convertedParams,
       relations: ['domain', 'creator', 'updater']
     })

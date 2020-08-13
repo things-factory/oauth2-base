@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import { connect } from 'pwa-helpers/connect-mixin.js'
 import { client, store, PageView } from '@things-factory/shell'
 
-class Application extends connect(store)(PageView) {
+class AppToken extends connect(store)(PageView) {
   static get styles() {
     return [
       css`
@@ -16,12 +16,12 @@ class Application extends connect(store)(PageView) {
 
   static get properties() {
     return {
-      application: Object
+      appToken: Object
     }
   }
 
   render() {
-    var app = this.application || {}
+    var app = this.appToken || {}
     return html`
       <form>
         <label for="name">app name</label>
@@ -65,8 +65,8 @@ class Application extends connect(store)(PageView) {
         <button>generate new secret</button>
         <button>generate new refresh token</button>
 
-        <button @click=${this.updateApplication.bind(this)}>update</button>
-        <button @click=${this.deleteApplication.bind(this)}>delete this app</button>
+        <button @click=${this.updateAppToken.bind(this)}>update</button>
+        <button @click=${this.deleteAppToken.bind(this)}>delete this app</button>
       </form>
     `
   }
@@ -76,14 +76,14 @@ class Application extends connect(store)(PageView) {
      * If this page properties are changed, this callback will be invoked.
      * This callback will be called back only when this page is activated.
      */
-    if (changes.has('application')) {
+    if (changes.has('appToken')) {
       /* do something */
     }
   }
 
   stateChanged(state) {
     /*
-     * application wide state changed
+     * appToken wide state changed
      *
      */
   }
@@ -134,7 +134,7 @@ class Application extends connect(store)(PageView) {
       /*
        * this page is activated
        */
-      await this.fetchApplication()
+      await this.fetchAppToken()
     } else {
       /* this page is deactivated */
     }
@@ -152,11 +152,11 @@ class Application extends connect(store)(PageView) {
      */
   }
 
-  async fetchApplication() {
+  async fetchAppToken() {
     const response = await client.query({
       query: gql`
         query($id: String!) {
-          application(id: $id) {
+          appToken(id: $id) {
             id
             name
             description
@@ -176,10 +176,10 @@ class Application extends connect(store)(PageView) {
       }
     })
 
-    this.application = response.data.application
+    this.appToken = response.data.appToken
   }
 
-  async updateApplication(e) {
+  async updateAppToken(e) {
     e.preventDefault()
 
     const form = this.renderRoot.querySelector('form')
@@ -194,8 +194,8 @@ class Application extends connect(store)(PageView) {
 
     const response = await client.mutate({
       mutation: gql`
-        mutation($id: String!, $patch: ApplicationPatch!) {
-          updateApplication(id: $id, patch: $patch) {
+        mutation($id: String!, $patch: AppTokenPatch!) {
+          updateAppToken(id: $id, patch: $patch) {
             id
             name
             description
@@ -219,18 +219,18 @@ class Application extends connect(store)(PageView) {
     if (response.errors) {
       console.error('update fail')
     } else {
-      this.application = response.data.updateApplication
+      this.appToken = response.data.updateAppToken
       console.log('update sucess')
     }
   }
 
-  async deleteApplication(e) {
+  async deleteAppToken(e) {
     const id = this.lifecycle.resourceId
 
     const response = await client.mutate({
       mutation: gql`
         mutation($id: String!) {
-          deleteApplication(id: $id)
+          deleteAppToken(id: $id)
         }
       `,
       variables: {
@@ -238,7 +238,7 @@ class Application extends connect(store)(PageView) {
       }
     })
 
-    const result = response.data.deleteApplication
+    const result = response.data.deleteAppToken
     if (result) {
       console.log('delete sucess')
     } else {
@@ -247,4 +247,4 @@ class Application extends connect(store)(PageView) {
   }
 }
 
-window.customElements.define('application-page', Application)
+window.customElements.define('app-token-page', AppToken)

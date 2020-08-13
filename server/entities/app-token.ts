@@ -14,15 +14,15 @@ import { Domain } from '@things-factory/shell'
 import { SECRET, User, UserStatus, AuthError } from '@things-factory/auth-base'
 import { Application } from '.'
 
-export enum AuthTokenStatus {
+export enum AppTokenStatus {
   ACTIVATED = 'ACTIVATED',
   GRANT = 'GRANT'
 }
 
 @Entity()
-@Index('ix_auth-token_0', (authToken: AuthToken) => [authToken.domain, authToken.application], { unique: true })
-@Index('ix_auth-token_1', (authToken: AuthToken) => [authToken.accessToken], { unique: false })
-export class AuthToken {
+@Index('ix_app-token_0', (appToken: AppToken) => [appToken.domain, appToken.application], { unique: true })
+@Index('ix_app-token_1', (appToken: AppToken) => [appToken.accessToken], { unique: false })
+export class AppToken {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -84,7 +84,7 @@ export class AuthToken {
     var application = {
       id: this.id,
       userType: 'application',
-      status: AuthTokenStatus.ACTIVATED,
+      status: AppTokenStatus.ACTIVATED,
       domain: {
         subdomain: this.domain.subdomain
       }
@@ -108,9 +108,9 @@ export class AuthToken {
   }
 
   /* auth-code signing for jsonwebtoken */
-  static generateAuthCode(authTokenId) {
+  static generateAuthCode(appTokenId) {
     var credential = {
-      id: authTokenId
+      id: appTokenId
     }
 
     return jwt.sign(credential, SECRET, {
@@ -128,12 +128,12 @@ export class AuthToken {
   }
 
   static async checkAuth(decoded) {
-    const repository = getRepository(AuthToken)
-    var authToken = await repository.findOne(decoded.id, {
+    const repository = getRepository(AppToken)
+    var appToken = await repository.findOne(decoded.id, {
       cache: true,
       relations: ['domain', 'user', 'application']
     })
-    var user = authToken?.user
+    var user = appToken?.user
 
     if (!user)
       throw new AuthError({
@@ -156,9 +156,9 @@ export class AuthToken {
       }
 
       return {
-        domain: authToken.domain,
+        domain: appToken.domain,
         user,
-        application: authToken.application
+        application: appToken.application
       }
     }
   }

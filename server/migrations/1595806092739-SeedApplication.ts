@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner, getRepository } from 'typeorm'
+import { User } from '@things-factory/auth-base'
 import { Application, ApplicationStatus } from '../entities'
 
 const SEED = [
@@ -19,11 +20,16 @@ const SEED = [
 export class SeedApplication1595806092739 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     const repository = getRepository(Application)
+    const userRepository = getRepository(User)
+
+    const admin = await userRepository.findOne({ email: 'admin@hatiolab.com' })
 
     try {
       SEED.forEach(async application => {
         await repository.save({
-          ...application
+          ...application,
+          updater: admin,
+          creator: admin
         })
       })
     } catch (e) {

@@ -1,6 +1,6 @@
 import * as Application from './application'
-import * as AuthToken from './auth-token'
+import * as AppToken from './app-token'
 
-export const queries = [Application.Query, AuthToken.Query]
+export const queries = [Application.Query, AppToken.Query]
 
-export const mutations = [Application.Mutation, AuthToken.Mutation]
+export const mutations = [Application.Mutation, AppToken.Mutation]

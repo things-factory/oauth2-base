@@ -1,6 +1,6 @@
 import passport from 'passport'
 import { ExtractJwt, Strategy as JWTstrategy } from 'passport-jwt'
-import { AuthToken } from '../entities/auth-token'
+import { AppToken } from '../entities/app-token'
 import { SECRET } from '@things-factory/auth-base'
 
 const debug = require('debug')('things-factory:oauth2-server:jwt-access-token-middleware')
@@ -51,7 +51,7 @@ export async function jwtAccessTokenMiddleware(context, next) {
     }
 
     try {
-      const { domain, user, application } = await AuthToken.checkAuth(authObj)
+      const { domain, user, application } = await AppToken.checkAuth(authObj)
 
       context.state.user = user
       context.state.domain = domain

@@ -1,9 +1,10 @@
 import oauth2orize from 'oauth2orize-koa'
 
 import { getRepository } from 'typeorm'
-import { Application, AuthToken, AuthTokenStatus } from '../entities'
+import { Application, AppToken, AppTokenStatus } from '../entities'
 import { Domain } from '@things-factory/shell'
 import { User, UserStatus } from '@things-factory/auth-base'
+import { applicationResolver } from 'server/graphql/resolvers/application/application'
 
 const debug = require('debug')('things-factory:oauth2-server:oauth2')
 
@@ -65,33 +66,36 @@ server.grant(
       subdomain
     })
 
-    const repository = getRepository(AuthToken)
-    const authToken = await repository.findOne({
+    const repository = getRepository(AppToken)
+    var appToken = await repository.findOne({
       domain,
       application: client
     })
 
-    debug('authToken', authToken)
+    debug('appToken', appToken)
 
-    if (authToken) {
-      await repository.save({
-        ...authToken,
+    if (appToken) {
+      appToken = await repository.save({
+        ...appToken,
         user,
         accessToken: '',
         refreshToken: '',
-        scope: ares.scope
+        scope: ares.scope,
+        updater: user,
+        creator: user
       })
     } else {
       /* 새로 application이 바인딩되는 경우에는 user가 없다. */
-      await repository.save({
+      appToken = await repository.save({
         domain,
         application: client,
-        status: AuthTokenStatus.GRANT,
-        scope: ares.scope
+        status: AppTokenStatus.GRANT,
+        scope: ares.scope,
+        updater: user
       })
     }
 
-    return AuthToken.generateAuthCode(authToken.id)
+    return AppToken.generateAuthCode(appToken.id)
   })
 )
 
@@ -103,13 +107,13 @@ server.grant(
 
 server.exchange(
   oauth2orize.exchange.code(async (client, code, redirectUrl) => {
-    const repository = getRepository(AuthToken)
+    const repository = getRepository(AppToken)
     try {
       /* 유효기간등을 처리하기 위해서 jwt 로 code를 엔코딩함. */
-      const decoded = AuthToken.verifyAuthCode(code)
+      const decoded = AppToken.verifyAuthCode(code)
 
       /*
-       * TODO 유효하지 않은 경우 AuthToken 엔티티에 대한 처리를 해야함.
+       * TODO 유효하지 않은 경우 AppToken 엔티티에 대한 처리를 해야함.
        * - 상태에 따라서, 삭제하거나, authcode를 제거하고 상태를 변경함.
        * - 삭제 경우 : 상태가 GRANT 인 경우
        * - 변경 경우 : 상태가 GRANT 가 아닌 경우 ?
@@ -143,12 +147,14 @@ server.exchange(
 
     var user = grantToken.user
     if (!user) {
-      const { email, domain } = grantToken.creator
+      const { domain, application, creator } = grantToken
+      const { email = '' } = creator || {}
 
       /* application type 사용자를 새로 만든다. */
       try {
         user = await getRepository(User).save({
           email: `${grantToken.id}-${email}`,
+          name: application.name,
           userType: 'application',
           domain,
           /* roles: [], TODO scope에 따라서 Roles가 설정되어야 함. */
@@ -168,7 +174,7 @@ server.exchange(
       user,
       accessToken,
       refreshToken,
-      status: AuthTokenStatus.ACTIVATED
+      status: AppTokenStatus.ACTIVATED
     })
 
     return [

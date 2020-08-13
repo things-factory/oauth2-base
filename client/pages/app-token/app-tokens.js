@@ -3,30 +3,28 @@ import gql from 'graphql-tag'
 import { connect } from 'pwa-helpers/connect-mixin.js'
 import { client, store, PageView } from '@things-factory/shell'
 
-class Applications extends connect(store)(PageView) {
+class AppTokens extends connect(store)(PageView) {
   static get properties() {
     return {
-      applications: Array
+      appTokens: Array
     }
   }
 
   render() {
-    var apps = this.applications || []
+    var appTokens = this.appTokens || []
 
     return html`
-      <h2>Registered Applications</h2>
+      <h2>Bound Applications</h2>
       <ul>
-        ${apps.map(
+        ${appTokens.map(
           app => html`
             <li>
-              <h3><a href=${`application/${app.id}`}>${app.name}</a></h3>
+              <h3><a href=${`app-token/${app.id}`}>${app.name}</a></h3>
               <h3>${app.description}</h3>
             </li>
           `
         )}
       </ul>
-
-      <a href="register-app">create app</a>
     `
   }
 
@@ -35,7 +33,7 @@ class Applications extends connect(store)(PageView) {
      * If this page properties are changed, this callback will be invoked.
      * This callback will be called back only when this page is activated.
      */
-    if (changes.has('applications')) {
+    if (changes.has('appTokens')) {
       /* do something */
     }
   }
@@ -93,7 +91,9 @@ class Applications extends connect(store)(PageView) {
       /*
        * this page is activated
        */
+
       this.applications = (await this.fetchApplications()).items
+      this.appTokens = (await this.fetchAppTokens()).items
     } else {
       /* this page is deactivated */
     }
@@ -111,11 +111,11 @@ class Applications extends connect(store)(PageView) {
      */
   }
 
-  async fetchApplications() {
+  async fetchAppTokens() {
     const response = await client.query({
       query: gql`
         query {
-          applications {
+          appTokens {
             items {
               id
               name
@@ -128,9 +128,9 @@ class Applications extends connect(store)(PageView) {
     })
 
     if (!response.errors) {
-      return response.data.applications
+      return response.data.appTokens
     }
   }
 }
 
-window.customElements.define('applications-page', Applications)
+window.customElements.define('app-tokens-page', AppTokens)

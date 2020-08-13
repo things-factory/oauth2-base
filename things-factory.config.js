@@ -5,10 +5,6 @@ export default {
   route,
   routes: [
     {
-      tagname: 'oauth-decision',
-      page: 'oauth-decision'
-    },
-    {
       tagname: 'application-page',
       page: 'application'
     },
@@ -19,6 +15,14 @@ export default {
     {
       tagname: 'register-app',
       page: 'register-app'
+    },
+    {
+      tagname: 'app-token-page',
+      page: 'app-token'
+    },
+    {
+      tagname: 'app-tokens-page',
+      page: 'app-tokens'
     }
   ],
   bootstrap

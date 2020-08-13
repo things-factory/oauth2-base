@@ -1,6 +1,6 @@
 import { Application, ApplicationStatus } from './application'
-import { AuthToken, AuthTokenStatus } from './auth-token'
+import { AppToken, AppTokenStatus } from './app-token'
 
-export const entities = [Application, AuthToken]
+export const entities = [Application, AppToken]
 
-export { Application, AuthToken, AuthTokenStatus, ApplicationStatus }
+export { Application, AppToken, AppTokenStatus, ApplicationStatus }
