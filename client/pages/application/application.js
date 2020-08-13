@@ -23,6 +23,8 @@ class Application extends connect(store)(PageView) {
   render() {
     var app = this.application || {}
     return html`
+      <a href="applications">applications ..</a>
+      <h3>Application - ${app.name}</h3>
       <form>
         <label for="name">app name</label>
         <input id="name" type="text" name="name" .value=${app.name} />

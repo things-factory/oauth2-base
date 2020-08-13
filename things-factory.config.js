@@ -17,10 +17,6 @@ export default {
       page: 'register-app'
     },
     {
-      tagname: 'app-token-page',
-      page: 'app-token'
-    },
-    {
       tagname: 'app-tokens-page',
       page: 'app-tokens'
     }

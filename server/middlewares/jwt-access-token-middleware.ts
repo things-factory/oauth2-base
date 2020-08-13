@@ -37,6 +37,8 @@ passport.use(
 export async function jwtAccessTokenMiddleware(context, next) {
   // API 전용 미들웨어라고 생각. UI 리디렉션이 필요하지 않다고 판단함.
   return await passport.authenticate('jwt', { session: false }, async (err, authObj, info) => {
+    debug('passport.authenticate - jwt', authObj, info)
+
     if (err || !authObj) {
       context.state.error = err || info
       debug('error - jwt', err, info)

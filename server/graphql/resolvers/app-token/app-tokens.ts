@@ -7,8 +7,9 @@ export const appTokensResolver = {
     const convertedParams = convertListParams(params)
     const [items, total] = await getRepository(AppToken).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'creator', 'updater']
+      relations: ['domain', 'application', 'user', 'creator', 'updater']
     })
+
     return { items, total }
   }
 }

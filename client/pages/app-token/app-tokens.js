@@ -14,13 +14,16 @@ class AppTokens extends connect(store)(PageView) {
     var appTokens = this.appTokens || []
 
     return html`
+      <a href="applications">registered applications ..</a>
       <h2>Bound Applications</h2>
       <ul>
         ${appTokens.map(
-          app => html`
+          appToken => html`
             <li>
-              <h3><a href=${`app-token/${app.id}`}>${app.name}</a></h3>
-              <h3>${app.description}</h3>
+              <h3><a href=${`application/${appToken.application.id}`}>${appToken.application.name}</a></h3>
+              <h3>${appToken.application.description}</h3>
+              <p>Scope : ${appToken.scope}</p>
+              <p>Status : ${appToken.status}</p>
             </li>
           `
         )}
@@ -92,7 +95,6 @@ class AppTokens extends connect(store)(PageView) {
        * this page is activated
        */
 
-      this.applications = (await this.fetchApplications()).items
       this.appTokens = (await this.fetchAppTokens()).items
     } else {
       /* this page is deactivated */
@@ -118,8 +120,12 @@ class AppTokens extends connect(store)(PageView) {
           appTokens {
             items {
               id
-              name
-              description
+              application {
+                id
+                name
+              }
+              scope
+              status
             }
             total
           }

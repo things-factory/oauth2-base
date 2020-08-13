@@ -14,6 +14,7 @@ class Applications extends connect(store)(PageView) {
     var apps = this.applications || []
 
     return html`
+      <a href="app-tokens">bound applications ..</a>
       <h2>Registered Applications</h2>
       <ul>
         ${apps.map(
