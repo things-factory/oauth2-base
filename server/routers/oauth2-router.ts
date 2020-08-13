@@ -5,6 +5,7 @@ import { server as oauth2orizeServer } from './oauth2'
 import { getRepository } from 'typeorm'
 import { Application } from '../entities'
 import passport from 'koa-passport'
+import compose from 'koa-compose'
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
 
 export const oauth2Router = new Router()
@@ -93,10 +94,12 @@ oauth2Router.get(
 oauth2Router.post(
   '/admin/oauth/decision',
   jwtAuthenticateMiddleware,
-  ...oauth2orizeServer.decision(function (context) {
-    const { request } = context
-    return request.body
-  })
+  compose(
+    oauth2orizeServer.decision(function (context) {
+      const { request } = context
+      return request.body
+    })
+  )
 )
 
 // token endpoint
