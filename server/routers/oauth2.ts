@@ -5,6 +5,8 @@ import { Application, AuthToken, AuthTokenStatus } from '../entities'
 import { Domain } from '@things-factory/shell'
 import { User, UserStatus } from '@things-factory/auth-base'
 
+const debug = require('debug')('things-factory:oauth2-server:oauth2')
+
 // create OAuth 2.0 server
 export const server = oauth2orize.createServer()
 
@@ -22,13 +24,14 @@ export const server = oauth2orize.createServer()
 // the client by ID from the database.
 
 server.serializeClient(async function (client) {
+  debug('serialze', client)
   return client.id
 })
 
 server.deserializeClient(async function (id) {
-  const repository = getRepository(Application)
-
-  return await repository.findOne(id)
+  const application = await getRepository(Application).findOne(id)
+  debug('deserialize', id, application)
+  return application
 })
 
 // Register supported grant types.
@@ -57,6 +60,8 @@ server.grant(
       domain,
       application: client
     })
+
+    debug(authToken)
 
     if (authToken) {
       await repository.save({

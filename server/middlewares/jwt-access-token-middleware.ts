@@ -3,12 +3,13 @@ import { ExtractJwt, Strategy as JWTstrategy } from 'passport-jwt'
 import { AuthToken } from '../entities/auth-token'
 import { SECRET } from '@things-factory/auth-base'
 
+const debug = require('debug')('things-factory:oauth2-server:jwt-access-token-middleware')
+
+/* TODO things-factory/auth-base - jwtAuthenticateMiddleware와 통합 : userType으로 로직 분기 */
 passport.use(
   new JWTstrategy(
     {
-      //secret we used to sign our JWT
       secretOrKey: SECRET,
-      //we expect the user to send the token as a query parameter with the name 'secret_token'
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
         ExtractJwt.fromHeader('authorization'),
@@ -24,7 +25,6 @@ passport.use(
     },
     async (token, done) => {
       try {
-        //Pass the user details to the next middleware
         return done(null, token)
       } catch (error) {
         return done(error)
@@ -34,42 +34,39 @@ passport.use(
 )
 
 export async function jwtAccessTokenMiddleware(context, next) {
+  // API 전용 미들웨어라고 생각. UI 리디렉션이 필요하지 않다고 판단함.
   return await passport.authenticate('jwt', { session: false }, async (err, authObj, info) => {
     if (err || !authObj) {
       context.state.error = err || info
+      debug('error - jwt', err, info)
 
-      if (
-        context.method == 'POST'
-        // ||
-        // (context._matchedRoute == context.path &&
-        //   (context.get('sec-fetch-mode') == 'navigate' || context.get('sec-fetch-dest') == 'document'))
-      ) {
-        context.status = 401
-        context.body = {
-          success: false,
-          message: info.message
-        }
-        return
+      context.status = 401
+      context.body = {
+        success: false,
+        message: info.message
       }
-      // if (context.header['sec-fetch-mode'] && context.header['sec-fetch-mode'] != 'navigate') {
-      //   context.throw(401, {
-      //     success: false,
-      //     message: error.message
-      //   })
-      // }
 
-      await next(context.state.error)
-    } else {
-      try {
-        const { domain, user, application } = await AuthToken.checkAuth(authObj)
-
-        context.state.user = user
-        context.state.domain = domain
-        context.state.application = application
-      } catch (e) {
-      } finally {
-        await next()
-      }
+      return
     }
+
+    try {
+      const { domain, user, application } = await AuthToken.checkAuth(authObj)
+
+      context.state.user = user
+      context.state.domain = domain
+      context.state.application = application
+    } catch (e) {
+      debug('error - checkAuth', e)
+
+      context.status = 401
+      context.body = {
+        success: false,
+        message: e.toString()
+      }
+
+      return
+    }
+
+    await next()
   })(context, next)
 }

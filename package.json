@@ -8,7 +8,7 @@
   "author": "heartyoh",
   "scripts": {
     "serve": "things-factory oauth2-server",
-    "serve:dev": "npm run build:server && things-factory-dev oauth2-server",
+    "serve:dev": "npm run build:server && DEBUG=things-factory:* things-factory-dev oauth2-server",
     "start:app": "things-factory-app",
     "start:app:android": "things-factory-app --platform=android",
     "emulate:app": "things-factory-app --emulate",

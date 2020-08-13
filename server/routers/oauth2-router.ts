@@ -8,14 +8,16 @@ import passport from 'koa-passport'
 import compose from 'koa-compose'
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
 
+const debug = require('debug')('things-factory:oauth2-server:oauth2-router')
+
 export const oauth2Router = new Router()
 
 passport.use(
   'oauth2-client-password',
   new ClientPasswordStrategy((clientId, clientSecret, done) => {
-    const repository = getRepository(Application)
+    debug('oauth2-client-password', clientId, clientSecret)
 
-    repository
+    getRepository(Application)
       .findOne({
         appKey: clientId
       })
@@ -46,38 +48,42 @@ passport.use(
 // to obtain their approval (displaying details about the client requesting
 // authorization).  We accomplish that here by routing through `ensureLoggedIn()`
 // first, and rendering the `dialog` view.
+const NotFound = { id: 'NOT FOUND' }
+
 oauth2Router.get(
   '/admin/oauth/authorize',
   jwtAuthenticateMiddleware,
   oauth2orizeServer.authorize(async function (clientID, redirectURI) {
-    const repository = getRepository(Application)
+    const client = await getRepository(Application).findOne({
+      appKey: clientID
+    })
+    // CONFIRM-ME redirectUrl 의 허용 범위는 ?
+    // if (!client.redirectUrl != redirectURI) {
+    //   return false
+    // }
 
-    try {
-      const client = await repository.findOne({
-        appKey: clientID
-      })
-      // CONFIRM-ME redirectUrl 의 허용 범위는 ?
-      // if (!client.redirectUrl != redirectURI) {
-      //   return false
-      // }
+    debug('authorize fetch client', clientID, redirectURI, client)
 
-      // return [client, client.redirectUrl]
-      return [client, redirectURI]
-    } catch (e) {
-      return false
-    }
+    return [client || NotFound, redirectURI]
   }),
   async function (context, next) {
-    // const { subdomains } = context
     const { oauth2, user, domain } = context.state
+
     if (!user) {
+      debug('authorize - user not found : will redirect to signin page')
       return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
     }
 
+    if (oauth2.client === NotFound) {
+      debug('authorize client not found : will render not found error in the decision page')
+    }
+    debug('authorize render page', oauth2)
+
+    // TODO decoration decision-page (oauth2 객체를 모두 페이지로 넘기는 게 좋겠다. user, clientId, redirectURI, scope, state..)
     await context.render('oauth-decision-page', {
       transactionID: oauth2.transactionID,
       user,
-      client: oauth2.client,
+      client: oauth2.client || {},
       warehouse: domain?.subdomain,
       domain: domain
     })
@@ -118,8 +124,10 @@ oauth2Router.post(
 
 oauth2Router.get('/admin/warehouse.json', jwtAccessTokenMiddleware, async (context, next) => {
   const { user, domain, application } = context.state
+  debug('getting profile', user, domain, application)
+
+  /* TODO user or warehouse profile을 제공해야함 */
   const email = user.email.substring(0, user.id.length)
-  /* TODO user profile을 제공해야함 */
 
   context.body = {
     warehouse: {
