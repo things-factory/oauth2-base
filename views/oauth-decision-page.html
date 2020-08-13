@@ -6,19 +6,21 @@
   <body>
     <p>Hi <%= user.name %>!</p>
     <p><b><%= client.name %></b> is requesting access to your account.</p>
-    <p>scopes : <%= req.scope instanceof Array ? req.scope.join(',') : req.scope %></p>
     <p>Do you approve?</p>
 
-    <form action="/admin/oauth/decision" method="POST">
-      <input name="transaction_id" value="<%= transactionID %>" />
-      <input name="warehouse" type="text" value="<%= domain.subdomain %>" />
-      <input name="application ID" type="text" value="<%= req.clientID %>" />
-      <input name="redirectURI" type="text" value="<%= redirectURI %>" />
+    <p>Warehouse : <%= domain.subdomain %></p>
+    <p>Scopes : <%= req.scope instanceof Array ? req.scope.join(',') : req.scope %></p>
+    <p>Application Client ID : <%= req.clientID %></p>
+    <p>Redirect URI : <%= redirectURI %></p>
+    <p>State : <%= req.state %></p>
 
-      <div>
-        <input type="submit" value="Allow" id="allow" />
-        <input type="submit" value="Deny" name="cancel" id="deny" />
-      </div>
+    <form action="/admin/oauth/decision" method="POST">
+      <input name="transaction_id" value="<%= transactionID %>" hidden />
+      <input name="scope" value="<%= req.scope %>" hidden />
+      <input name="warehouse" type="text" value="<%= domain.subdomain %>" hidden />
+
+      <input type="submit" value="Allow" id="allow" />
+      <input type="submit" value="Deny" name="cancel" id="deny" />
     </form>
   </body>
 </html>

@@ -71,7 +71,7 @@ server.grant(
       application: client
     })
 
-    debug(authToken)
+    debug('authToken', authToken)
 
     if (authToken) {
       await repository.save({
