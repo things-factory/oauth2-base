@@ -7,6 +7,11 @@ import { User, UserStatus } from '@things-factory/auth-base'
 
 const debug = require('debug')('things-factory:oauth2-server:oauth2')
 
+export const NOTFOUND = 'NOTFOUND'
+export const NonClient = {
+  id: NOTFOUND
+}
+
 // create OAuth 2.0 server
 export const server = oauth2orize.createServer()
 
@@ -29,6 +34,11 @@ server.serializeClient(async function (client) {
 })
 
 server.deserializeClient(async function (id) {
+  if (id == NOTFOUND) {
+    debug('deserialize - not found')
+    return {}
+  }
+
   const application = await getRepository(Application).findOne(id)
   debug('deserialize', id, application)
   return application

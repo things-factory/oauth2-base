@@ -1,7 +1,7 @@
 import Router from 'koa-router'
 import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
 import { jwtAccessTokenMiddleware } from '../middlewares/jwt-access-token-middleware'
-import { server as oauth2orizeServer } from './oauth2'
+import { server as oauth2orizeServer, NonClient } from './oauth2'
 import { getRepository } from 'typeorm'
 import { Application } from '../entities'
 import passport from 'koa-passport'
@@ -48,7 +48,6 @@ passport.use(
 // to obtain their approval (displaying details about the client requesting
 // authorization).  We accomplish that here by routing through `ensureLoggedIn()`
 // first, and rendering the `dialog` view.
-const NotFound = { id: 'NOT FOUND' }
 
 oauth2Router.get(
   '/admin/oauth/authorize',
@@ -64,7 +63,7 @@ oauth2Router.get(
 
     debug('authorize fetch client', clientID, redirectURI, client)
 
-    return [client || NotFound, redirectURI]
+    return [client || NonClient, redirectURI]
   }),
   async function (context, next) {
     const { oauth2, user, domain } = context.state
@@ -74,19 +73,23 @@ oauth2Router.get(
       return context.redirect(`/signin?redirect_to=${encodeURIComponent(context.req.url)}`)
     }
 
-    if (oauth2.client === NotFound) {
+    var decisionPage = 'oauth-decision-page'
+    if (oauth2.client === NonClient) {
       debug('authorize client not found : will render not found error in the decision page')
+      decisionPage = 'oauth-decision-error-page'
     }
+
     debug('authorize render page', oauth2)
 
-    // TODO decoration decision-page (oauth2 객체를 모두 페이지로 넘기는 게 좋겠다. user, clientId, redirectURI, scope, state..)
-    await context.render('oauth-decision-page', {
-      transactionID: oauth2.transactionID,
-      user,
-      client: oauth2.client || {},
-      warehouse: domain?.subdomain,
-      domain: domain
-    })
+    try {
+      await context.render(decisionPage, {
+        domain: domain,
+        ...oauth2 // client, redirectURI, req { type, clientID, redirectURI, scope, state}, user, transactionID, info, locals
+      })
+    } catch (e) {
+      debug('render decision page error', e)
+      throw e
+    }
   }
 )
 

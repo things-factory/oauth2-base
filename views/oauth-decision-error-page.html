@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>OAuth2orize Example</title>
+    <title>OAuth2orize Error</title>
   </head>
   <body>
     <p>Hi <%= user.name %>!</p>
-    <p><b><%= client.name %></b> is requesting access to your account.</p>
-    <p>Do you approve?</p>
+    <p><b>Application Not Found</p>
+    <p>You better check you give a correct client id (appKey) </p>
 
     <form action="/admin/oauth/decision" method="POST">
       <input name="transaction_id" value="<%= transactionID %>" />
@@ -16,7 +16,6 @@
       <input name="redirectURI" type="text" value="<%= redirectURI %>" />
 
       <div>
-        <input type="submit" value="Allow" id="allow" />
         <input type="submit" value="Deny" name="cancel" id="deny" />
       </div>
     </form>
