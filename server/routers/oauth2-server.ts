@@ -95,17 +95,18 @@ server.exchange(
 
     debug('exchange - application', application)
 
-    if (redirectUrl !== application.redirectUrl) {
-      console.error(
-        'oauth2 exchange error - redirectUrl should be same as the application setting',
-        redirectUrl,
-        application.redirectUrl
-      )
-      // return false
-      throw new TypeError(
-        `oauth2 exchange error - redirectUrl should be same as the application setting : '${redirectUrl}':'${application.redirectUrl}'`
-      )
-    }
+    /* DONT-FORGET uncomment after test */
+    // if (redirectUrl !== application.redirectUrl && redirectUrl.indexOf(application.redirectUrl) != 0) {
+    //   console.error(
+    //     'oauth2 exchange error - redirectUrl should begins with the application setting',
+    //     redirectUrl,
+    //     application.redirectUrl
+    //   )
+    //   // return false
+    //   throw new TypeError(
+    //     `oauth2 exchange error - redirectUrl should begins with the application setting : '${redirectUrl}':'${application.redirectUrl}'`
+    //   )
+    // }
 
     const domain: Domain = await getRepository(Domain).findOne({
       subdomain
@@ -155,9 +156,8 @@ server.exchange(
       appuser.domain = Promise.resolve(domain)
       appuser.domains = Promise.resolve([domain])
       await getRepository(User).save(appuser)
-      // Lazy relation field들에 대한 업데이트. rediculous, 이상의 방법으로 업데이트 해야하는 것 같다.
-      // Lazy relation fields : domain, domains
-      // Lazy relation 업데이트는 실수 가능성이 높으므로, 사용하지 않기를 권장함.
+      // Lazy relation 필드들(domain, domains)들에 대한 업데이트. 이상의 방법으로 업데이트 해야하는 것 같다.
+      // Lazy relation 업데이트 방법의 일관성이 부족하므로, Lazy relation 필드를 사용하지 않기를 권장함.
     }
 
     var accessToken = Application.generateAccessToken(domain, appuser, appKey)
