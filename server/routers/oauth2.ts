@@ -1,10 +1,9 @@
 import oauth2orize from 'oauth2orize-koa'
 
 import { getRepository } from 'typeorm'
-import { Application, AppToken, AppTokenStatus } from '../entities'
+import { Application } from '../entities'
 import { Domain } from '@things-factory/shell'
 import { User, UserStatus } from '@things-factory/auth-base'
-import { applicationResolver } from 'server/graphql/resolvers/application/application'
 
 const debug = require('debug')('things-factory:oauth2-server:oauth2')
 
@@ -61,40 +60,9 @@ server.deserializeClient(async function (id) {
 
 server.grant(
   oauth2orize.grant.code(async (client, redirectUrl, user, ares, areq) => {
-    var subdomain = ares.warehouse
-    const domain = await getRepository(Domain).findOne({
-      subdomain
-    })
+    const { email, appKey, subdomain, scope, state } = ares
 
-    const repository = getRepository(AppToken)
-    var appToken = await repository.findOne({
-      domain,
-      application: client
-    })
-
-    debug('appToken', appToken)
-
-    if (appToken) {
-      appToken = await repository.save({
-        ...appToken,
-        accessToken: '',
-        refreshToken: '',
-        scope: ares.scope,
-        updater: user
-      })
-    } else {
-      /* 새로 application이 바인딩되는 경우에는 user가 없다. */
-      appToken = await repository.save({
-        domain,
-        application: client,
-        status: AppTokenStatus.GRANT,
-        scope: ares.scope,
-        updater: user,
-        creator: user
-      })
-    }
-
-    return AppToken.generateAuthCode(appToken.id)
+    return Application.generateAuthCode(email, appKey, subdomain, scope, state)
   })
 )
 
@@ -106,74 +74,83 @@ server.grant(
 
 server.exchange(
   oauth2orize.exchange.code(async (client, code, redirectUrl) => {
-    const repository = getRepository(AppToken)
+    const repository = getRepository(Application)
+
     try {
       /* 유효기간등을 처리하기 위해서 jwt 로 code를 엔코딩함. */
-      const decoded = AppToken.verifyAuthCode(code)
-
-      /*
-       * TODO 유효하지 않은 경우 AppToken 엔티티에 대한 처리를 해야함.
-       * - 상태에 따라서, 삭제하거나, authcode를 제거하고 상태를 변경함.
-       * - 삭제 경우 : 상태가 GRANT 인 경우
-       * - 변경 경우 : 상태가 GRANT 가 아닌 경우 ?
-       */
-
-      var grantToken = await repository.findOne(
-        {
-          id: decoded.id
-        },
-        { relations: ['domain', 'application', 'user', 'creator'] }
-      )
-
-      if (!grantToken) {
-        console.error('grant Token is not exist')
-        // authcode not valid
-        return false
-      }
-
-      if (client.appKey !== grantToken.application.appKey) {
-        console.error('client appKey is not same as grantToken appkey', client, grantToken.application)
-        return false
-      }
-      // TODO revival....
-      // if (redirectUrl !== grantToken.redirectUrl) {
-      //   return false
-      // }
+      var decoded = Application.verifyAuthCode(code)
+      debug('exchange - decoded', decoded)
     } catch (e) {
       console.error(e)
       return false
     }
+    const { email, appKey, subdomain, scope, state } = decoded
 
-    var user = grantToken.user
-    if (!user) {
-      const { domain, application, creator } = grantToken
-      const { email = '' } = creator || {}
+    const application = await getRepository(Application).findOne({
+      appKey
+    })
 
-      /* application type 사용자를 새로 만든다. */
-      try {
-        user = await getRepository(User).save({
-          email: `${grantToken.id}-${email}`,
-          name: application.name,
-          userType: 'application',
-          domain,
-          /* roles: [], TODO scope에 따라서 Roles가 설정되어야 함. */
-          status: UserStatus.ACTIVATED
-        })
-      } catch (e) {
-        console.error(e)
-        return false
-      }
+    if (!application) {
+      console.error('application is not exist')
+      // authcode not valid
+      return false
     }
 
-    var accessToken = grantToken.generateAccessToken(user)
-    var refreshToken = grantToken.generateRefreshToken(user)
+    debug('exchange - application', application)
 
-    await repository.save({
-      ...grantToken,
-      user,
-      accessToken,
-      refreshToken,
-      status: AppTokenStatus.ACTIVATED
+    // TODO how to check redirectUrl..
+    // if (redirectUrl !== application.redirectUrl) {
+    //   return false
+    // }
+
+    const domain: Domain = await getRepository(Domain).findOne({
+      subdomain
+    })
+
+    debug('exchange - domain', domain)
+
+    const creator = await getRepository(User).findOne({
+      email
+    })
+
+    debug('exchange - creator', creator)
+
+    var appuser = await getRepository(User).findOne(
+      {
+        domain,
+        email: `${appKey}@${subdomain}`,
+        /* reference: application.id, TODO application, appliance 등의 레퍼런스가 꼭 필요하다. */
+        userType: 'application'
+      },
+      {
+        relations: ['domain', 'creator', 'updater']
+      }
+    )
+
+    debug('exchange - appuser', appuser)
+
+    if (!appuser) {
+      appuser = await getRepository(User).save({
+        domain: domain,
+        domains: [domain.id],
+        email: `${appKey}@${subdomain}`,
+        name: application.name,
+        userType: 'application',
+        /* roles: [], TODO scope에 따라서 Roles가 설정되어야 함. */
+        status: UserStatus.ACTIVATED,
+        updater: creator,
+        creator
+      })
+    }
+
+    debug('exchange - appuser', appuser)
+
+    var accessToken = Application.generateAccessToken(domain, appuser, appKey)
+    var refreshToken = Application.generateRefreshToken(domain, appuser, appKey)
+
+    await getRepository(User).save({
+      ...(appuser as any),
+      password: accessToken
     })
 
     return [

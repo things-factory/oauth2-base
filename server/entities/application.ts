@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 import {
   CreateDateColumn,
   UpdateDateColumn,
@@ -9,7 +10,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
-import { User } from '@things-factory/auth-base'
+import { SECRET, User, UserStatus } from '@things-factory/auth-base'
 
 export enum ApplicationStatus {
   DRAFT = 'DRAFT',
@@ -87,5 +88,56 @@ export class Application {
 
   static generateAppKey() {
     return crypto.randomBytes(16).toString('hex')
+  }
+
+  /* signing for jsonwebtoken */
+  static sign(subject, expiresIn, domain, user, appKey) {
+    var application = {
+      id: user.id,
+      userType: 'application',
+      application: {
+        appKey
+      },
+      status: UserStatus.ACTIVATED,
+      domain: {
+        subdomain: domain.subdomain
+      }
+    }
+
+    return jwt.sign(application, SECRET, {
+      expiresIn,
+      issuer: 'hatiolab.com',
+      subject
+    })
+  }
+
+  static generateAccessToken(domain, user, appKey) {
+    /* how to set expiresIn https://github.com/vercel/ms */
+    return this.sign('access-token', '30d', domain, user, appKey)
+  }
+
+  static generateRefreshToken(domain, user, appKey) {
+    /* how to set expiresIn https://github.com/vercel/ms */
+    return this.sign('refresh-token', '1y', domain, user, appKey)
+  }
+
+  /* auth-code signing for jsonwebtoken */
+  static generateAuthCode(email, appKey, subdomain, scope, state) {
+    var credential = {
+      email,
+      appKey,
+      subdomain,
+      scope,
+      state
+    }
+
+    return jwt.sign(credential, SECRET, {
+      expiresIn: '1m'
+    })
+  }
+
+  /* auth-code signing for jsonwebtoken */
+  static verifyAuthCode(authcode) {
+    return jwt.verify(authcode, SECRET)
   }
 }

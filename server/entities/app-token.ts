@@ -80,16 +80,16 @@ export class AppToken {
   updater: User
 
   /* signing for jsonwebtoken */
-  sign(subject, expiresIn, user) {
+  static sign(subject, expiresIn, domain, user, appKey) {
     var application = {
       id: user.id,
       userType: 'application',
       application: {
-        id: this.id
+        appKey
       },
       status: AppTokenStatus.ACTIVATED,
       domain: {
-        subdomain: this.domain.subdomain
+        subdomain: domain.subdomain
       }
     }
 
@@ -100,20 +100,24 @@ export class AppToken {
     })
   }
 
-  generateAccessToken(user) {
+  static generateAccessToken(domain, user, appKey) {
     /* how to set expiresIn https://github.com/vercel/ms */
-    return this.sign('access-token', '30d', user)
+    return this.sign('access-token', '30d', domain, user, appKey)
   }
 
-  generateRefreshToken(user) {
+  static generateRefreshToken(domain, user, appKey) {
     /* how to set expiresIn https://github.com/vercel/ms */
-    return this.sign('refresh-token', '1y', user)
+    return this.sign('refresh-token', '1y', domain, user, appKey)
   }
 
   /* auth-code signing for jsonwebtoken */
-  static generateAuthCode(appTokenId) {
+  static generateAuthCode(email, appKey, subdomain, scope, state) {
     var credential = {
-      id: appTokenId
+      email,
+      appKey,
+      subdomain,
+      scope,
+      state
     }
 
     return jwt.sign(credential, SECRET, {

@@ -16,8 +16,11 @@
 
     <form action="/admin/oauth/decision" method="POST">
       <input name="transaction_id" value="<%= transactionID %>" hidden />
+      <input name="subdomain" type="text" value="<%= domain.subdomain %>" hidden />
+      <input name="appKey" value="<%= req.clientID %>" hidden />
       <input name="scope" value="<%= req.scope %>" hidden />
-      <input name="warehouse" type="text" value="<%= domain.subdomain %>" hidden />
+      <input name="state" type="text" value="<%= req.state %>" hidden />
+      <input name="email" type="text" value="<%= user.email %>" hidden />
 
       <input type="submit" value="Allow" id="allow" />
       <input type="submit" value="Deny" name="cancel" id="deny" />
