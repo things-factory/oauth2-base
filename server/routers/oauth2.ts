@@ -77,7 +77,6 @@ server.grant(
     if (appToken) {
       appToken = await repository.save({
         ...appToken,
-        user,
         accessToken: '',
         refreshToken: '',
         scope: ares.scope,
@@ -166,8 +165,8 @@ server.exchange(
       }
     }
 
-    var accessToken = grantToken.generateAccessToken()
-    var refreshToken = grantToken.generateRefreshToken()
+    var accessToken = grantToken.generateAccessToken(user)
+    var refreshToken = grantToken.generateRefreshToken(user)
 
     await repository.save({
       ...grantToken,
