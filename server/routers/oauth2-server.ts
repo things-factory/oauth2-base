@@ -5,7 +5,7 @@ import { Application } from '../entities'
 import { Domain } from '@things-factory/shell'
 import { User, UserStatus } from '@things-factory/auth-base'
 
-const debug = require('debug')('things-factory:oauth2-server:oauth2')
+const debug = require('debug')('things-factory:oauth2-server:oauth2-server')
 
 export const NOTFOUND = 'NOTFOUND'
 export const NonClient = {
