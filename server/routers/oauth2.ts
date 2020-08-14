@@ -80,8 +80,7 @@ server.grant(
         accessToken: '',
         refreshToken: '',
         scope: ares.scope,
-        updater: user,
-        creator: user
+        updater: user
       })
     } else {
       /* 새로 application이 바인딩되는 경우에는 user가 없다. */
@@ -90,7 +89,8 @@ server.grant(
         application: client,
         status: AppTokenStatus.GRANT,
         scope: ares.scope,
-        updater: user
+        updater: user,
+        creator: user
       })
     }
 
