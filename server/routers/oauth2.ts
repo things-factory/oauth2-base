@@ -74,8 +74,6 @@ server.grant(
 
 server.exchange(
   oauth2orize.exchange.code(async (client, code, redirectUrl) => {
-    const repository = getRepository(Application)
-
     try {
       /* 유효기간등을 처리하기 위해서 jwt 로 code를 엔코딩함. */
       var decoded = Application.verifyAuthCode(code)
@@ -86,22 +84,28 @@ server.exchange(
     }
     const { email, appKey, subdomain, scope, state } = decoded
 
-    const application = await getRepository(Application).findOne({
+    const application: Application = await getRepository(Application).findOne({
       appKey
     })
 
     if (!application) {
       console.error('application is not exist')
-      // authcode not valid
       return false
     }
 
     debug('exchange - application', application)
 
-    // TODO how to check redirectUrl..
-    // if (redirectUrl !== application.redirectUrl) {
-    //   return false
-    // }
+    if (redirectUrl !== application.redirectUrl) {
+      console.error(
+        'oauth2 exchange error - redirectUrl should be same as the application setting',
+        redirectUrl,
+        application.redirectUrl
+      )
+      // return false
+      throw new TypeError(
+        `oauth2 exchange error - redirectUrl should be same as the application setting : '${redirectUrl}':'${application.redirectUrl}'`
+      )
+    }
 
     const domain: Domain = await getRepository(Domain).findOne({
       subdomain
@@ -109,16 +113,18 @@ server.exchange(
 
     debug('exchange - domain', domain)
 
-    const creator = await getRepository(User).findOne({
+    const creator: User = await getRepository(User).findOne({
       email
     })
 
     debug('exchange - creator', creator)
 
-    var appuser = await getRepository(User).findOne(
+    const appuserEmail = `${appKey}@${subdomain}`
+
+    var appuser: User = await getRepository(User).findOne(
       {
         domain,
-        email: `${appKey}@${subdomain}`,
+        email: appuserEmail,
         /* reference: application.id, TODO application, appliance 등의 레퍼런스가 꼭 필요하다. */
         userType: 'application'
       },
@@ -130,10 +136,9 @@ server.exchange(
     debug('exchange - appuser', appuser)
 
     if (!appuser) {
-      appuser = await getRepository(User).save({
-        domain: domain,
-        domains: [domain.id],
-        email: `${appKey}@${subdomain}`,
+      /* newly create appuser */
+      await getRepository(User).save({
+        email: appuserEmail,
         name: application.name,
         userType: 'application',
         /* roles: [], TODO scope에 따라서 Roles가 설정되어야 함. */
@@ -141,9 +146,19 @@ server.exchange(
         updater: creator,
         creator
       })
-    }
 
-    debug('exchange - appuser', appuser)
+      appuser = await getRepository(User).findOne({
+        where: { email: appuserEmail },
+        relations: ['domain', 'domains']
+      })
+
+      appuser.domain = Promise.resolve(domain)
+      appuser.domains = Promise.resolve([domain])
+      await getRepository(User).save(appuser)
+      // Lazy relation field들에 대한 업데이트. rediculous, 이상의 방법으로 업데이트 해야하는 것 같다.
+      // Lazy relation fields : domain, domains
+      // Lazy relation 업데이트는 실수 가능성이 높으므로, 사용하지 않기를 권장함.
+    }
 
     var accessToken = Application.generateAccessToken(domain, appuser, appKey)
     var refreshToken = Application.generateRefreshToken(domain, appuser, appKey)
@@ -152,6 +167,8 @@ server.exchange(
       ...(appuser as any),
       password: accessToken
     })
+
+    debug('exchange - appuser', appuser)
 
     return [
       accessToken,
