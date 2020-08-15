@@ -17,8 +17,8 @@ export default {
       page: 'register-app'
     },
     {
-      tagname: 'app-tokens-page',
-      page: 'app-tokens'
+      tagname: 'app-bindings-page',
+      page: 'app-bindings'
     }
   ],
   bootstrap

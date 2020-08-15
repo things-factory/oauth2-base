@@ -15,8 +15,8 @@ export default function route(page) {
       import('./pages/application/register-app')
       return page
 
-    case 'app-tokens':
-      import('./pages/app-token/app-tokens')
+    case 'app-bindings':
+      import('./pages/app-binding/app-bindings')
       return page
   }
 }

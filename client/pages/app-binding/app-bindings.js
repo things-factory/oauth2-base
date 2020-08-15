@@ -20,8 +20,8 @@ class AppBindings extends connect(store)(PageView) {
         ${appBindings.map(
           appBinding => html`
             <li>
-              <h3><a href=${`application/${appBinding.application.id}`}>${appBinding.application.name}</a></h3>
-              <h3>${appBinding.application.description}</h3>
+              <h3><a href=${`application/${appBinding.application.id}`}>${appBinding.name}</a></h3>
+              <h3>${appBinding.description}</h3>
               <p>Scope : ${appBinding.scope}</p>
               <p>Status : ${appBinding.status}</p>
             </li>
@@ -120,6 +120,7 @@ class AppBindings extends connect(store)(PageView) {
           appBindings {
             items {
               id
+              name
               application {
                 id
                 name
@@ -139,4 +140,4 @@ class AppBindings extends connect(store)(PageView) {
   }
 }
 
-window.customElements.define('app-tokens-page', AppBindings)
+window.customElements.define('app-bindings-page', AppBindings)
