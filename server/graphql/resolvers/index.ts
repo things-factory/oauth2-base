@@ -1,6 +1,6 @@
 import * as Application from './application'
-import * as AppToken from './app-token'
+import * as AppBinding from './app-binding'
 
-export const queries = [Application.Query, AppToken.Query]
+export const queries = [Application.Query, AppBinding.Query]
 
-export const mutations = [Application.Mutation, AppToken.Mutation]
+export const mutations = [Application.Mutation, AppBinding.Mutation]

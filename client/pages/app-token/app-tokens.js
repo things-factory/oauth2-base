@@ -3,27 +3,27 @@ import gql from 'graphql-tag'
 import { connect } from 'pwa-helpers/connect-mixin.js'
 import { client, store, PageView } from '@things-factory/shell'
 
-class AppTokens extends connect(store)(PageView) {
+class AppBindings extends connect(store)(PageView) {
   static get properties() {
     return {
-      appTokens: Array
+      appBindings: Array
     }
   }
 
   render() {
-    var appTokens = this.appTokens || []
+    var appBindings = this.appBindings || []
 
     return html`
       <a href="applications">registered applications ..</a>
       <h2>Bound Applications</h2>
       <ul>
-        ${appTokens.map(
-          appToken => html`
+        ${appBindings.map(
+          appBinding => html`
             <li>
-              <h3><a href=${`application/${appToken.application.id}`}>${appToken.application.name}</a></h3>
-              <h3>${appToken.application.description}</h3>
-              <p>Scope : ${appToken.scope}</p>
-              <p>Status : ${appToken.status}</p>
+              <h3><a href=${`application/${appBinding.application.id}`}>${appBinding.application.name}</a></h3>
+              <h3>${appBinding.application.description}</h3>
+              <p>Scope : ${appBinding.scope}</p>
+              <p>Status : ${appBinding.status}</p>
             </li>
           `
         )}
@@ -36,7 +36,7 @@ class AppTokens extends connect(store)(PageView) {
      * If this page properties are changed, this callback will be invoked.
      * This callback will be called back only when this page is activated.
      */
-    if (changes.has('appTokens')) {
+    if (changes.has('appBindings')) {
       /* do something */
     }
   }
@@ -95,7 +95,7 @@ class AppTokens extends connect(store)(PageView) {
        * this page is activated
        */
 
-      this.appTokens = (await this.fetchAppTokens()).items
+      this.appBindings = (await this.fetchAppBindings()).items
     } else {
       /* this page is deactivated */
     }
@@ -113,11 +113,11 @@ class AppTokens extends connect(store)(PageView) {
      */
   }
 
-  async fetchAppTokens() {
+  async fetchAppBindings() {
     const response = await client.query({
       query: gql`
         query {
-          appTokens {
+          appBindings {
             items {
               id
               application {
@@ -134,9 +134,9 @@ class AppTokens extends connect(store)(PageView) {
     })
 
     if (!response.errors) {
-      return response.data.appTokens
+      return response.data.appBindings
     }
   }
 }
 
-window.customElements.define('app-tokens-page', AppTokens)
+window.customElements.define('app-tokens-page', AppBindings)

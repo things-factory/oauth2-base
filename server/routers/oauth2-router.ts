@@ -1,7 +1,6 @@
 import Router from 'koa-router'
 import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
-import { jwtAccessTokenMiddleware } from '../middlewares/jwt-access-token-middleware'
-import { server as oauth2orizeServer, NonClient } from './oauth2'
+import { server as oauth2orizeServer, NonClient } from './oauth2-server'
 import { getRepository } from 'typeorm'
 import { Application } from '../entities'
 import passport from 'koa-passport'
@@ -125,20 +124,35 @@ oauth2Router.post(
   oauth2orizeServer.errorHandler()
 )
 
-oauth2Router.get('/admin/warehouse.json', jwtAccessTokenMiddleware, async (context, next) => {
-  const { user, domain, application } = context.state
-  debug('getting profile', user, domain, application)
+oauth2Router.get('/admin/oauth/profile.json', jwtAuthenticateMiddleware, async (context, next) => {
+  const { user, domain } = context.state
 
-  /* TODO user or warehouse profile을 제공해야함 */
-  const email = user.email.substring(0, user.id.length)
+  debug('getting user/application profile', user, domain)
+
+  const { name, description, email, userType: type, locale } = user
+  const { name: domainName, subdomain, brandName, brandImage, contentImage, timezone } = domain || {}
+
+  var application = {}
+  if (type == 'application') {
+    /* user entity에 reference 필드가 추가되기 전까지, appKey취득 방법임. */
+    application['appKey'] = email.substr(0, email.lastIndexOf('@'))
+  }
 
   context.body = {
-    warehouse: {
-      id: application.appKey,
-      warehouse_owner: application.name,
-      name: application.name,
-      domain: domain?.name,
-      email
+    profile: {
+      name,
+      description,
+      email,
+      type, // 'admin', 'user', 'application', 'appliance'
+      domain: {
+        name: domainName,
+        subdomain,
+        brandName,
+        brandImage,
+        contentImage,
+        timezone
+      },
+      application
     }
   }
 })

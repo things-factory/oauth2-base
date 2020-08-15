@@ -1,6 +1,5 @@
 import { Application, ApplicationStatus } from './application'
-import { AppToken, AppTokenStatus } from './app-token'
 
-export const entities = [Application, AppToken]
+export const entities = [Application]
 
-export { Application, AppToken, AppTokenStatus, ApplicationStatus }
+export { Application, ApplicationStatus }
