@@ -1,4 +1,4 @@
-import { oauth2Router, apiRouter } from './routers'
+import { oauth2Router } from './routers'
 import session from 'koa-session'
 import { SECRET } from '@things-factory/auth-base'
 
@@ -14,5 +14,4 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
   app.use(session(app))
 
   app.use(oauth2Router.routes())
-  app.use(apiRouter.routes())
 })
