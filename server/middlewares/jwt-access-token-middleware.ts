@@ -2,7 +2,7 @@ import passport from 'passport'
 import { ExtractJwt, Strategy as JWTstrategy } from 'passport-jwt'
 import { SECRET, User } from '@things-factory/auth-base'
 
-const debug = require('debug')('things-factory:oauth2-server:jwt-access-token-middleware')
+const debug = require('debug')('things-factory:oauth2-base:jwt-access-token-middleware')
 
 /* TODO things-factory/auth-base - jwtAuthenticateMiddleware와 통합 : userType으로 로직 분기 */
 passport.use(

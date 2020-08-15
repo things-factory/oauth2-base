@@ -1,5 +1,5 @@
 {
-  "name": "@things-factory/oauth2-server",
+  "name": "@things-factory/oauth2-base",
   "version": "1.0.0",
   "main": "dist-server/index.js",
   "browser": "client/index.js",
@@ -7,8 +7,8 @@
   "license": "MIT",
   "author": "heartyoh",
   "scripts": {
-    "serve": "things-factory oauth2-server",
-    "serve:dev": "npm run build:server && DEBUG=things-factory:* things-factory-dev oauth2-server",
+    "serve": "things-factory oauth2-base",
+    "serve:dev": "npm run build:server && DEBUG=things-factory:* things-factory-dev oauth2-base",
     "start:app": "things-factory-app",
     "start:app:android": "things-factory-app --platform=android",
     "emulate:app": "things-factory-app --emulate",
@@ -27,7 +27,7 @@
     "migration:run": "node ./node_modules/typeorm/cli.js migration:run",
     "migration:revert": "node ./node_modules/typeorm/cli.js migration:revert",
     "stop:dev": "kill $(lsof -t -i:3000,3001)",
-    "stop": "things-factory-stop oauth2-server"
+    "stop": "things-factory-stop oauth2-base"
   },
   "dependencies": {
     "@things-factory/auth-base": "^2.5.0",

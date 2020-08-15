@@ -7,7 +7,7 @@ import passport from 'koa-passport'
 import compose from 'koa-compose'
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
 
-const debug = require('debug')('things-factory:oauth2-server:oauth2-router')
+const debug = require('debug')('things-factory:oauth2-base:oauth2-router')
 
 export const oauth2Router = new Router()
 
