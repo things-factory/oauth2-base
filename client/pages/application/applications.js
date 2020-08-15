@@ -4,6 +4,24 @@ import { connect } from 'pwa-helpers/connect-mixin.js'
 import { client, store, PageView } from '@things-factory/shell'
 
 class Applications extends connect(store)(PageView) {
+  static get styles() {
+    return [
+      css`
+        .button-primary {
+          background-color: var(--button-primary-background-color);
+          border: var(--button-border);
+          border-radius: var(--button-border-radius);
+          margin: var(--button-margin);
+          padding: var(--button-padding);
+          color: var(--button-primary-color);
+          font: var(--button-primary-font);
+
+          text-decoration: none;
+        }
+      `
+    ]
+  }
+
   static get properties() {
     return {
       applications: Array
@@ -14,8 +32,10 @@ class Applications extends connect(store)(PageView) {
     var apps = this.applications || []
 
     return html`
-      <a href="app-tokens">bound applications ..</a>
       <h2>Registered Applications</h2>
+      <a href="register-app" class="button-primary">create app</a>
+
+      <a href="app-tokens">bound applications ..</a>
       <ul>
         ${apps.map(
           app => html`
@@ -26,8 +46,6 @@ class Applications extends connect(store)(PageView) {
           `
         )}
       </ul>
-
-      <a href="register-app">create app</a>
     `
   }
 
