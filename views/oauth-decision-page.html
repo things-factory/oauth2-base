@@ -14,7 +14,7 @@
     <p>Redirect URI : <%= redirectURI %></p>
     <p>State : <%= req.state %></p>
 
-    <form action="/admin/oauth2/decision" method="POST">
+    <form action="/admin/oauth/decision" method="POST">
       <input name="transaction_id" value="<%= transactionID %>" hidden />
       <input name="subdomain" type="text" value="<%= domain.subdomain %>" hidden />
       <input name="appKey" value="<%= req.clientID %>" hidden />

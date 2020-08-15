@@ -49,7 +49,7 @@ passport.use(
 // first, and rendering the `dialog` view.
 
 oauth2Router.get(
-  '/admin/oauth2/authorize',
+  '/admin/oauth/authorize',
   jwtAuthenticateMiddleware,
   oauth2orizeServer.authorize(async function (clientID, redirectURI) {
     const client = await getRepository(Application).findOne({
@@ -100,7 +100,7 @@ oauth2Router.get(
 // a response.
 
 oauth2Router.post(
-  '/admin/oauth2/decision',
+  '/admin/oauth/decision',
   jwtAuthenticateMiddleware,
   compose(
     oauth2orizeServer.decision(function (context) {
@@ -118,13 +118,13 @@ oauth2Router.post(
 // authenticate when making requests to this endpoint.
 
 oauth2Router.post(
-  '/admin/oauth2/access_token',
+  '/admin/oauth/access_token',
   passport.authenticate('oauth2-client-password', { session: false }),
   oauth2orizeServer.token(),
   oauth2orizeServer.errorHandler()
 )
 
-oauth2Router.get('/admin/oauth2/profile.json', jwtAuthenticateMiddleware, async (context, next) => {
+oauth2Router.get('/admin/oauth/profile.json', jwtAuthenticateMiddleware, async (context, next) => {
   const { user, domain } = context.state
 
   debug('getting user/application profile', user, domain)
