@@ -52,11 +52,10 @@ export async function jwtAccessTokenMiddleware(context, next) {
     }
 
     try {
-      const { domain, user, application } = await User.checkAuth(authObj)
+      const user = await User.checkAuth(authObj)
 
       context.state.user = user
-      context.state.domain = domain
-      context.state.application = application
+      context.state.domain = await user.domain
     } catch (e) {
       debug('error - checkAuth', e)
 
