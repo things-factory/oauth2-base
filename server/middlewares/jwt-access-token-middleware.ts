@@ -5,6 +5,7 @@ import { SECRET, User } from '@things-factory/auth-base'
 const debug = require('debug')('things-factory:oauth2-base:jwt-access-token-middleware')
 
 passport.use(
+  'jwt-access-token',
   new JWTstrategy(
     {
       secretOrKey: SECRET,
@@ -22,7 +23,7 @@ passport.use(
 
 export async function jwtAccessTokenMiddleware(context, next) {
   // API 전용 미들웨어이므로, UI 리디렉션이 필요하지 않다.
-  return await passport.authenticate('jwt', { session: false }, async (err, authObj, info) => {
+  return await passport.authenticate('jwt-access-token', { session: false }, async (err, authObj, info) => {
     debug('passport.authenticate - jwt', authObj, info)
 
     if (err || !authObj) {

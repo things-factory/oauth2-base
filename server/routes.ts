@@ -12,6 +12,5 @@ process.on('bootstrap-module-route' as any, (app, routes) => {
   /* oauth2orize-koa 에서 oauth 트랜잭션 관리를 위해서 session을 사용함. */
   app.keys = [SECRET]
   app.use(session(app))
-
   app.use(oauth2Router.routes())
 })
