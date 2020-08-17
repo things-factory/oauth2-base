@@ -43,7 +43,7 @@ body {
   --scrollbar-thumb-hover-color: var(--primary-color);
 
   --fontsize-default: 14px;
-  --fontsize-small: 12px;
+  --fontsize-small: 13px;
   --fontsize-large: 16px;
 
   /* app layout style */
@@ -100,4 +100,18 @@ body {
 
   --td-padding: var(--padding-default);
   --td-font: normal 13px var(--theme-font);
+
+  /* form style */
+  --label-font: normal var(--fontsize-default) var(--theme-font);
+  --label-color: var(--secondary-color);
+  --label-text-transform: capitalize;
+  --input-margin: var(--margin-narrow) 0;
+  --input-padding: var(--padding-default);
+  --input-font: normal var(--fontsize-default) var(--theme-font);
+  --input-hint-font: normal var(--fontsize-small) var(--theme-font);
+  --input-hint-color: #666;
+  --fieldset-margin: var(--padding-wide) 0;
+  --fieldset-padding: 0 var(--padding-wide) var(--padding-wide) var(--padding-wide);
+  --legend-padding: var(--padding-default) 0;
+  --legend-color: var(--secondary-text-color);
 }

@@ -14,11 +14,69 @@ class RegisterApp extends connect(store)(PageView) {
           background-color: var(--main-section-background-color);
           padding: var(--padding-wide);
         }
+        h2 {
+          margin: var(--title-margin);
+          font: var(--title-font);
+          color: var(--title-text-color);
+        }
+        [page-description] {
+          margin: var(--page-description-margin);
+          font: var(--page-description-font);
+          color: var(--page-description-color);
+        }
         :host * {
           display: block;
         }
-        form {
+        label {
+          font: var(--label-font);
+          color: var(--label-color);
+          text-transform: var(--label-text-transform);
+        }
+        input {
+          border: var(--border-dark-color);
+          border-radius: var(--border-radius);
+          margin: var(--input-margin);
+          padding: var(--input-padding);
+          font: var(--input-font);
+
+          flex: 1;
+        }
+        select:focus,
+        input:focus {
+          outline: none;
+        }
+        [field-2column] {
           display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-gap: 15px;
+        }
+        [field] {
+          display: flex;
+          flex-direction: column;
+        }
+        [grid-span] {
+          grid-column: span 2;
+        }
+        [button-primary] {
+          background-color: var(--button-primary-background-color);
+          border: var(--button-border);
+          border-radius: var(--button-border-radius);
+          margin: var(--button-margin);
+          padding: var(--button-primary-padding);
+          color: var(--button-primary-color);
+          font: var(--button-primary-font);
+          text-transform: var(--button-text-transform);
+
+          text-decoration: none;
+        }
+        [button-primary]:hover {
+          background-color: var(--button-primary-active-background-color);
+          box-shadow: var(--button-active-box-shadow);
+        }
+        @media screen and (max-width: 460px) {
+          [field-2column] {
+            grid-template-columns: 1fr;
+          }
         }
       `
     ]
@@ -32,33 +90,39 @@ class RegisterApp extends connect(store)(PageView) {
 
   render() {
     return html`
+      <h2>Register Applications</h2>
+      <p page-description>
+        Register Applications description
+      </p>
+
       <form>
-        <div>
-          <label for="name">name</label>
-          <input id="name" type="text" name="name" />
-        </div>
+        <div field-2column>
+          <div field grid-span>
+            <label for="name">name</label>
+            <input id="name" type="text" name="name" />
+          </div>
 
-        <div>
-          <label for="description">description</label>
-          <input id="description" type="text" name="description" />
-        </div>
+          <div field grid-span>
+            <label for="description">description</label>
+            <input id="description" type="text" name="description" />
+          </div>
 
-        <div>
-          <label for="app-url">app url</label>
-          <input id="app-url" type="text" name="url" />
-        </div>
+          <div field>
+            <label for="app-url">app url</label>
+            <input id="app-url" type="text" name="url" />
+          </div>
 
-        <div>
-          <label for="email">contact email</label>
-          <input id="email" type="text" name="email" />
-        </div>
+          <div field>
+            <label for="email">contact email</label>
+            <input id="email" type="text" name="email" />
+          </div>
 
-        <div>
-          <label for="description">redirectUrl</label>
-          <input id="redirect-url" type="text" name="redirectUrl" />
+          <div field>
+            <label for="description">redirectUrl</label>
+            <input id="redirect-url" type="text" name="redirectUrl" />
+          </div>
         </div>
-
-        <button @click=${this.createApplication.bind(this)}>create application</button>
+        <button button-primary @click=${this.createApplication.bind(this)}>create application</button>
       </form>
     `
   }

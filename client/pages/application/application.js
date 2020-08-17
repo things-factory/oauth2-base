@@ -7,8 +7,112 @@ class Application extends connect(store)(PageView) {
   static get styles() {
     return [
       css`
-        :host * {
-          display: block;
+        :host {
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+
+          background-color: var(--main-section-background-color);
+          padding: var(--padding-wide);
+        }
+        h2 {
+          margin: var(--title-margin);
+          font: var(--title-font);
+          color: var(--title-text-color);
+        }
+        [page-description] {
+          margin: var(--page-description-margin);
+          font: var(--page-description-font);
+          color: var(--page-description-color);
+        }
+        [button-primary] {
+          background-color: var(--button-primary-background-color);
+          border: var(--button-border);
+          border-radius: var(--button-border-radius);
+          margin: var(--button-margin);
+          padding: var(--button-primary-padding);
+          color: var(--button-primary-color);
+          font: var(--button-primary-font);
+          text-transform: var(--button-text-transform);
+
+          text-decoration: none;
+        }
+        [button-primary]:hover {
+          background-color: var(--button-primary-active-background-color);
+          box-shadow: var(--button-active-box-shadow);
+        }
+        label {
+          font: var(--label-font);
+          color: var(--label-color);
+          text-transform: var(--label-text-transform);
+        }
+        input {
+          border: var(--border-dark-color);
+          border-radius: var(--border-radius);
+          margin: var(--input-margin);
+          padding: var(--input-padding);
+          font: var(--input-font);
+
+          flex: 1;
+        }
+        select:focus,
+        input:focus,
+        button {
+          outline: none;
+        }
+        fieldset {
+          background-color: var(--theme-white-color);
+          border-radius: var(--border-radius);
+          border: var(--border-dark-color);
+          margin: var(--fieldset-margin);
+          padding: var(--fieldset-padding);
+        }
+        legend {
+          padding: var(--legend-padding);
+          font-weight: bold;
+          color: var(--legend-color);
+        }
+        [field-2column] {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-gap: 15px;
+        }
+        [field] {
+          display: flex;
+          flex-direction: column;
+          position: relative;
+        }
+        [grid-span] {
+          grid-column: span 2;
+        }
+        button,
+        [button-in-field] {
+          background-color: var(--button-background-color);
+          border: var(--button-border);
+          border-radius: var(--button-border-radius);
+          padding: var(--button-padding);
+          color: var(--button-color);
+          font: var(--button-font);
+          text-transform: var(--button-text-transform);
+
+          margin: var(--margin-default) 0 var(--margin-default) var(--margin-default);
+          float: right;
+          text-decoration: none;
+        }
+        button:hover {
+          border: var(--button-activ-border);
+          box-shadow: var(--button-active-box-shadow);
+        }
+        [button-in-field] {
+          border-radius: 0 var(--button-border-radius) var(--button-border-radius) 0;
+          position: absolute;
+          top: 11px;
+          right: 0;
+          max-height: 36px;
+        }
+        [input-hint] {
+          font: var(--input-hint-font);
+          color: var(--input-hint-color);
         }
       `
     ]
@@ -23,46 +127,78 @@ class Application extends connect(store)(PageView) {
   render() {
     var app = this.application || {}
     return html`
-      <a href="applications">applications ..</a>
-      <h3>Application - ${app.name}</h3>
+      <div>
+        <h2>Create Applications</h2>
+        <p page-description>
+          create Applications description
+        </p>
+        <a href="applications" button-primary>applications ..</a>
+      </div>
+
       <form>
-        <label for="name">app name</label>
-        <input id="name" type="text" name="name" .value=${app.name} />
+        <fieldset>
+          <legend>Application - ${app.name}</legend>
+          <div field-2column>
+            <div field grid-span>
+              <label for="name">app name</label>
+              <input id="name" type="text" name="name" .value=${app.name} />
+            </div>
 
-        <label for="description">description</label>
-        <input id="description" type="text" name="description" .value=${app.description} />
+            <div field grid-span>
+              <label for="description">description</label>
+              <input id="description" type="text" name="description" .value=${app.description} />
+            </div>
 
-        <label for="email">api contact email</label>
-        <input id="email" type="text" name="email" .value=${app.email} />
+            <div field>
+              <label for="email">api contact email</label>
+              <input id="email" type="text" name="email" .value=${app.email} />
+            </div>
 
-        <label for="url">app url</label>
-        <input id="url" type="text" name="url" .value=${app.url} />
+            <div field>
+              <label for="url">app url</label>
+              <input id="url" type="text" name="url" .value=${app.url} />
+            </div>
 
-        <label for="icon">icon</label>
-        <input id="icon" type="text" name="icon" .value=${app.icon} />
+            <div field>
+              <label for="icon">icon</label>
+              <input id="icon" type="text" name="icon" .value=${app.icon} />
+            </div>
 
-        <label for="redirect-url">redirectUrl</label>
-        <input id="redirect-url" type="text" name="redirectUrl" .value=${app.redirectUrl} />
+            <div field>
+              <label for="redirect-url">redirectUrl</label>
+              <input id="redirect-url" type="text" name="redirectUrl" .value=${app.redirectUrl} />
+            </div>
 
-        <label for="webhook">webhook</label>
-        <input id="webhook" type="text" name="webhook" .value=${app.webhook} />
+            <div field>
+              <label for="webhook">webhook</label>
+              <input id="webhook" type="text" name="webhook" .value=${app.webhook} />
+            </div>
+        </fieldset>
 
-        <br />
-        <h3>app credentials</h3>
+        <fieldset>
+          <legend>app credentials</legend>
+          <div field-2column>
+            <div field grid-span>
+              <label for="app-key">appKey</label>
+              <input id="app-key" type="text" name="appKey" .value=${app.appKey} disabled />
+              <button button-in-field>copy</button>
+            </div>
 
-        <label for="app-key">appKey</label>
-        <input id="app-key" type="text" name="appKey" .value=${app.appKey} disabled />
-        <button>copy appKey</button>
+            <div field grid-span>
+              <label for="app-secret">appSecret</label>
+              <input id="app-secret" type="text" name="appSecret" .value=${app.appSecret} disabled />
+              <button button-in-field>copy</button>
+              <div input-hint>created 6 days ago</div>
+            </div>
 
-        <label for="app-secret">appSecret</label>
-        <input id="app-secret" type="text" name="appSecret" .value=${app.appSecret} disabled />
-        <div>created 6 days ago</div>
-        <button>copy app-secret</button>
-
-        <label for="refresh-token">refresh token</label>
-        <input id="refresh-token" type="text" name="refreshToken" .value=${app.refreshToken} disabled />
-        <div>expires 1 hour</div>
-        <button>copy refresh token</button>
+            <div field grid-span>
+              <label for="refresh-token">refresh token</label>
+              <input id="refresh-token" type="text" name="refreshToken" .value=${app.refreshToken} disabled />
+              <button button-in-field>copy</button>
+              <div input-hint>expires 1 hour</div>
+            </div>
+          </div>
+        </fieldset>
 
         <button>generate new secret</button>
         <button>generate new refresh token</button>

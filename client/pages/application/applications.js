@@ -58,11 +58,6 @@ class Applications extends connect(store)(PageView) {
           font: var(--page-description-font);
           color: var(--page-description-color);
         }
-        [page-description] nwc-icon {
-          background-color: var(--primary-color);
-          float: left;
-          color: #fff;
-        }
         div {
           margin: var(--margin-wide) 0;
         }
@@ -82,6 +77,7 @@ class Applications extends connect(store)(PageView) {
         }
         td {
           padding: var(--td-padding);
+          border-bottom: var(--border-dark-color);
           font: var(--td-font);
         }
         td a {
