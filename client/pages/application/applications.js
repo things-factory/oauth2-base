@@ -4,6 +4,103 @@ import { connect } from 'pwa-helpers/connect-mixin.js'
 import { client, store, PageView } from '@things-factory/shell'
 
 class Applications extends connect(store)(PageView) {
+  static get styles() {
+    return [
+      css`
+        :host {
+          display: flex;
+          flex-direction: column;
+          background-color: var(--main-section-background-color);
+          padding: var(--padding-wide);
+        }
+
+        [button-primary] {
+          background-color: var(--button-primary-background-color);
+          border: var(--button-border);
+          border-radius: var(--button-border-radius);
+          margin: var(--button-margin);
+          padding: var(--button-primary-padding);
+          color: var(--button-primary-color);
+          font: var(--button-primary-font);
+          text-transform: var(--button-text-transform);
+
+          text-decoration: none;
+        }
+        [button-primary]:hover {
+          background-color: var(--button-primary-active-background-color);
+          box-shadow: var(--button-active-box-shadow);
+        }
+        [button] {
+          background-color: var(--button-background-color);
+          border: var(--button-border);
+          border-radius: var(--button-border-radius);
+          margin: var(--button-margin);
+          padding: var(--button-padding);
+          color: var(--button-color);
+          font: var(--button-font);
+          text-transform: var(--button-text-transform);
+
+          margin-right: 0;
+          float: right;
+          text-decoration: none;
+        }
+        [button]:hover {
+          border: var(--button-activ-border);
+          box-shadow: var(--button-active-box-shadow);
+        }
+        h2 {
+          margin: var(--title-margin);
+          font: var(--title-font);
+          color: var(--title-text-color);
+        }
+        [page-description] {
+          margin: var(--page-description-margin);
+          font: var(--page-description-font);
+          color: var(--page-description-color);
+        }
+        [page-description] nwc-icon {
+          background-color: var(--primary-color);
+          float: left;
+          color: #fff;
+        }
+        div {
+          margin: var(--margin-wide) 0;
+        }
+        table {
+          background-color: var(--theme-white-color);
+          border: var(--border-dark-color);
+
+          width: 100%;
+        }
+        th {
+          border-bottom: var(--border-dark-color);
+          padding: var(--th-padding);
+
+          font: var(--th-font);
+          color: var(--secondary-color);
+          text-transform: var(--th-text-transform);
+        }
+        td {
+          padding: var(--td-padding);
+          font: var(--td-font);
+        }
+        td a {
+          color: var(--primary-color);
+          font: bold 16px var(--theme-font);
+
+          display: block;
+          text-decoration: none;
+        }
+        .text-align-center {
+          text-align: center;
+        }
+        .text-align-right {
+          text-align: right;
+        }
+      `
+    ]
+  }
+
   static get properties() {
     return {
       applications: Array
@@ -14,20 +111,39 @@ class Applications extends connect(store)(PageView) {
     var apps = this.applications || []
 
     return html`
-      <a href="app-bindings">bound applications ..</a>
-      <h2>Registered Applications</h2>
-      <ul>
-        ${apps.map(
-          app => html`
-            <li>
-              <h3><a href=${`application/${app.id}`}>${app.name}</a></h3>
-              <h3>${app.description}</h3>
-            </li>
-          `
-        )}
-      </ul>
+      <div>
+        <h2>Registered Applications</h2>
+        <p page-description>
+          What type of app are you building?<br />Choose the app type that best suits the audience you’re building for.
+          The app type can’t be changed after it’s created.
+        </p>
+        <a href="register-app" button-primary>create app</a>
+      </div>
 
-      <a href="register-app">create app</a>
+      <div>
+        <table>
+          <tr>
+            <th>app name</th>
+            <th>API health</th>
+            <th>Installs</th>
+            <th>status</th>
+          </tr>
+          ${apps.map(
+            app => html`
+              <tr>
+                <td>
+                  <a href=${`application/${app.id}`}>${app.name}</a>
+                  ${app.description}
+                </td>
+                <td class="text-align-center">OK</td>
+                <td class="text-align-right">1</td>
+                <td class="text-align-center">draft</td>
+              </tr>
+            `
+          )}
+        </table>
+        <a href="app-bindings" button>bound applications ..</a>
+      </div>
     `
   }
 
