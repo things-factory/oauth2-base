@@ -9,7 +9,11 @@ passport.use(
   new JWTstrategy(
     {
       secretOrKey: SECRET,
-      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderAsBearerToken()])
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        /* Bearer Authorization Header token과 Query String token을 모두 지원한다. */
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromUrlQueryParameter('access_token')
+      ])
     },
     async (token, done) => {
       try {
