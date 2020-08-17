@@ -49,7 +49,15 @@ body {
   /* app layout style */
   --app-grid-template-area: 'header header header' 'nav main aside' 'nav footer aside';
 
-  /* subtitle style */
+  /* title & description style */
+  --title-margin: var(--margin-narrow) 0;
+  --title-font: bold 24px var(--theme-font);
+  --title-text-color: var(--secondary-color);
+
+  --page-description-margin: var(--margin-narrow) 0 var(--margin-wide) 0;
+  --page-description-font: normal var(--fontsize-default) / 1.2rem var(--theme-font);
+  --page-description-color: var(--secondary-text-color);
+
   --subtitle-padding: 12px 5px 3px 5px;
   --subtitle-font: bold 18px var(--theme-font);
   --subtitle-text-color: var(--primary-color);

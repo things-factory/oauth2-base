@@ -18,6 +18,21 @@ class Applications extends connect(store)(PageView) {
 
           text-decoration: none;
         }
+        h2 {
+          margin: var(--title-margin);
+          font: var(--title-font);
+          color: var(--title-text-color);
+        }
+        [page-description] {
+          margin: var(--page-description-margin);
+          font: var(--page-description-font);
+          color: var(--page-description-color);
+        }
+        [page-description] nwc-icon {
+          background-color: var(--primary-color);
+          float: left;
+          color: #fff;
+        }
       `
     ]
   }
@@ -33,6 +48,10 @@ class Applications extends connect(store)(PageView) {
 
     return html`
       <h2>Registered Applications</h2>
+      <p page-description>
+        What type of app are you building?<br />Choose the app type that best suits the audience you’re building for.
+        The app type can’t be changed after it’s created.
+      </p>
       <a href="register-app" class="button-primary">create app</a>
 
       <a href="app-tokens">bound applications ..</a>
