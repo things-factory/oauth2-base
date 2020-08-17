@@ -79,12 +79,25 @@ body {
   --button-background-color: #fafbfc;
   --button-border: var(--border-dark-color);
   --button-border-radius: var(--border-radius);
+  --button-margin: var(--margin-default) var(--margin-default) var(--margin-default) 0;
+  --button-padding: var(--margin-default);
   --button-color: var(--secondary-color);
-  --button-font: normal 16px var(--theme-font);
-  --button-margin: var(--margin-default);
-  --button-padding: var(--margin-default) var(--margin-wide);
+  --button-font: normal 15px var(--theme-font);
+  --button-text-transform: capitalize;
+  --button-active-box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  --button-activ-border: 1px solid var(--primary-color);
 
   --button-primary-background-color: var(--primary-color);
+  --button-primary-active-background-color: var(--status-success-color);
+  --button-primary-padding: var(--margin-default) var(--margin-wide);
   --button-primary-color: var(--theme-white-color);
   --button-primary-font: bold 16px var(--theme-font);
+
+  /* table style */
+  --th-padding: var(--padding-narrow);
+  --th-text-transform: capitalize;
+  --th-font: bold 15px var(--theme-font);
+
+  --td-padding: var(--padding-default);
+  --td-font: normal 13px var(--theme-font);
 }
