@@ -8,8 +8,17 @@ class RegisterApp extends connect(store)(PageView) {
   static get styles() {
     return [
       css`
+        :host {
+          display: flex;
+          flex-direction: column;
+          background-color: var(--main-section-background-color);
+          padding: var(--padding-wide);
+        }
         :host * {
           display: block;
+        }
+        form {
+          display: grid;
         }
       `
     ]
@@ -24,20 +33,30 @@ class RegisterApp extends connect(store)(PageView) {
   render() {
     return html`
       <form>
-        <label for="name">name</label>
-        <input id="name" type="text" name="name" />
+        <div>
+          <label for="name">name</label>
+          <input id="name" type="text" name="name" />
+        </div>
 
-        <label for="description">description</label>
-        <input id="description" type="text" name="description" />
+        <div>
+          <label for="description">description</label>
+          <input id="description" type="text" name="description" />
+        </div>
 
-        <label for="app-url">app url</label>
-        <input id="app-url" type="text" name="url" />
+        <div>
+          <label for="app-url">app url</label>
+          <input id="app-url" type="text" name="url" />
+        </div>
 
-        <label for="email">contact email</label>
-        <input id="email" type="text" name="email" />
+        <div>
+          <label for="email">contact email</label>
+          <input id="email" type="text" name="email" />
+        </div>
 
-        <label for="description">redirectUrl</label>
-        <input id="redirect-url" type="text" name="redirectUrl" />
+        <div>
+          <label for="description">redirectUrl</label>
+          <input id="redirect-url" type="text" name="redirectUrl" />
+        </div>
 
         <button @click=${this.createApplication.bind(this)}>create application</button>
       </form>
