@@ -6,7 +6,7 @@ import { getRepository } from 'typeorm'
 import { Application } from '../entities'
 import passport from 'koa-passport'
 import compose from 'koa-compose'
-import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
+import { Strategy as ClientPasswordStrategy } from './passport-oauth2-client-password'
 
 const debug = require('debug')('things-factory:oauth2-base:oauth2-router')
 
@@ -14,7 +14,7 @@ export const oauth2Router = new Router()
 
 passport.use(
   'oauth2-client-password',
-  new ClientPasswordStrategy((clientId, clientSecret, done) => {
+  new ClientPasswordStrategy({}, (clientId, clientSecret, done) => {
     debug('oauth2-client-password', clientId, clientSecret)
 
     getRepository(Application)
