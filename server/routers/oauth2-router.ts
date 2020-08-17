@@ -1,5 +1,6 @@
 import Router from 'koa-router'
 import { jwtAuthenticateMiddleware } from '@things-factory/auth-base'
+import { jwtAccessTokenMiddleware } from '../middlewares/jwt-access-token-middleware'
 import { server as oauth2orizeServer, NonClient } from './oauth2-server'
 import { getRepository } from 'typeorm'
 import { Application } from '../entities'
@@ -7,7 +8,7 @@ import passport from 'koa-passport'
 import compose from 'koa-compose'
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password'
 
-const debug = require('debug')('things-factory:oauth2-server:oauth2-router')
+const debug = require('debug')('things-factory:oauth2-base:oauth2-router')
 
 export const oauth2Router = new Router()
 
@@ -124,7 +125,7 @@ oauth2Router.post(
   oauth2orizeServer.errorHandler()
 )
 
-oauth2Router.get('/admin/oauth/profile.json', jwtAuthenticateMiddleware, async (context, next) => {
+oauth2Router.get('/admin/oauth/profile.json', jwtAccessTokenMiddleware, async (context, next) => {
   const { user, domain } = context.state
 
   debug('getting user/application profile', user, domain)

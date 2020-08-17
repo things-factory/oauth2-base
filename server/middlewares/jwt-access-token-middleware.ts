@@ -2,26 +2,13 @@ import passport from 'passport'
 import { ExtractJwt, Strategy as JWTstrategy } from 'passport-jwt'
 import { SECRET, User } from '@things-factory/auth-base'
 
-const debug = require('debug')('things-factory:oauth2-server:jwt-access-token-middleware')
+const debug = require('debug')('things-factory:oauth2-base:jwt-access-token-middleware')
 
-/* TODO things-factory/auth-base - jwtAuthenticateMiddleware와 통합 : userType으로 로직 분기 */
 passport.use(
   new JWTstrategy(
     {
       secretOrKey: SECRET,
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        /* BearerToken should be ahead of Header */
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
-        ExtractJwt.fromHeader('authorization'),
-        ExtractJwt.fromHeader('x-access-token'),
-        ExtractJwt.fromUrlQueryParameter('access_token'),
-        ExtractJwt.fromBodyField('access_token'),
-        req => {
-          var token = null
-          token = req?.ctx?.cookies?.get('access_token')
-          return token
-        }
-      ])
+      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderAsBearerToken()])
     },
     async (token, done) => {
       try {
@@ -34,7 +21,7 @@ passport.use(
 )
 
 export async function jwtAccessTokenMiddleware(context, next) {
-  // API 전용 미들웨어라고 생각. UI 리디렉션이 필요하지 않다고 판단함.
+  // API 전용 미들웨어이므로, UI 리디렉션이 필요하지 않다.
   return await passport.authenticate('jwt', { session: false }, async (err, authObj, info) => {
     debug('passport.authenticate - jwt', authObj, info)
 
@@ -52,11 +39,10 @@ export async function jwtAccessTokenMiddleware(context, next) {
     }
 
     try {
-      const { domain, user, application } = await User.checkAuth(authObj)
+      const user = await User.checkAuth(authObj)
 
       context.state.user = user
-      context.state.domain = domain
-      context.state.application = application
+      context.state.domain = await user.domain
     } catch (e) {
       debug('error - checkAuth', e)
 
