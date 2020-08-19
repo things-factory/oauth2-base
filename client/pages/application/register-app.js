@@ -73,9 +73,9 @@ class RegisterApp extends connect(store)(PageView) {
           background-color: var(--button-primary-active-background-color);
           box-shadow: var(--button-active-box-shadow);
         }
-        @media screen and (max-width: 460px) {
-          [field-2column] {
-            grid-template-columns: 1fr;
+        @media screen and (max-width: 480px) {
+          [field] {
+            grid-column: span 2;
           }
         }
       `

@@ -114,6 +114,11 @@ class Application extends connect(store)(PageView) {
           font: var(--input-hint-font);
           color: var(--input-hint-color);
         }
+        @media screen and (max-width: 480px) {
+          [field] {
+            grid-column: span 2;
+          }
+        }
       `
     ]
   }
