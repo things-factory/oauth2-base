@@ -106,11 +106,11 @@ class AppBindings extends connect(store)(PageView) {
             appBinding => html`
               <tr>
                 <td>
-                  <a href=${`application/${appBinding.application.id}`}>${appBinding.name} name</a>
-                  ${appBinding.description}description
+                  <a href=${`application/${appBinding.application.id}`}>${appBinding.name}</a>
+                  ${appBinding.description}
                 </td>
-                <td class="text-align-center">${appBinding.scope} scope</td>
-                <td class="text-align-center">${appBinding.status} status</td>
+                <td class="text-align-center">${appBinding.scope}</td>
+                <td class="text-align-center">${appBinding.status}</td>
               </tr>
             `
           )}

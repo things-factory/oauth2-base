@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@things-factory/auth-base": "^2.6.0-beta.1",
+    "@things-factory/shell": "^2.3.0-beta.10",
     "koa-session": "^6.0.0",
     "oauth2orize-koa": "^1.3.2"
   },

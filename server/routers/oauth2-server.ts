@@ -1,9 +1,9 @@
 import oauth2orize from 'oauth2orize-koa'
 
-import { getRepository } from 'typeorm'
+import { getRepository, In } from 'typeorm'
 import { Application } from '../entities'
 import { Domain } from '@things-factory/shell'
-import { User, UserStatus } from '@things-factory/auth-base'
+import { Role, User, UserStatus } from '@things-factory/auth-base'
 
 const debug = require('debug')('things-factory:oauth2-base:oauth2-server')
 
@@ -138,10 +138,16 @@ server.exchange(
 
     if (!appuser) {
       /* newly create appuser */
+      const roles = await getRepository(Role).find({
+        name: In(scope.split(',')),
+        domain
+      })
+
       await getRepository(User).save({
         email: appuserEmail,
         name: application.name,
         userType: 'application',
+        roles,
         /* roles: [], TODO scope에 따라서 Roles가 설정되어야 함. */
         status: UserStatus.ACTIVATED,
         updater: creator,

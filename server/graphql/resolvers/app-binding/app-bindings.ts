@@ -18,7 +18,7 @@ export const appBindingsResolver = {
 
     const [items, total] = await getRepository(User).findAndCount({
       ...convertedParams,
-      relations: ['domain', 'creator', 'updater']
+      relations: ['domain', 'roles', 'creator', 'updater']
     })
 
     var boundApps = await Promise.all(
@@ -30,6 +30,7 @@ export const appBindingsResolver = {
           user.application = await getRepository(Application).findOne({
             appKey
           })
+          user.scope = user.roles.map(role => role.name).join(' ')
 
           return user
         })
