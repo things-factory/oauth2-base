@@ -1,6 +1,6 @@
 {
   "name": "@things-factory/oauth2-base",
-  "version": "1.0.0-beta.11",
+  "version": "1.0.0-beta.12",
   "main": "dist-server/index.js",
   "browser": "client/index.js",
   "things-factory": true,
@@ -30,12 +30,16 @@
     "stop": "things-factory-stop oauth2-base"
   },
   "dependencies": {
-    "@things-factory/auth-base": "^2.5.0",
+    "@things-factory/auth-base": "^2.6.0-beta.1",
     "koa-session": "^6.0.0",
     "oauth2orize-koa": "^1.3.2"
   },
   "devDependencies": {
     "@things-factory/auth-ui-jwt": "^2.0.12",
     "@things-factory/operato-demo": "^1.0.0-beta.1"
+  },
+  "resolutions": {
+    "@things-factory/auth-base": "^2.6.0-beta.1",
+    "@things-factory/shell": "^2.3.0-beta.10"
   }
 }
