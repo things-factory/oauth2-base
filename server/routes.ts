@@ -8,9 +8,10 @@ process.on('bootstrap-module-history-fallback' as any, (app, fallbackOption) => 
   fallbackOption.whiteList.push(`^\/(${paths.join('|')})($|[/?#])`)
 })
 
-process.on('bootstrap-module-route' as any, (app, routes) => {
+process.on('bootstrap-module-domain-public-route' as any, (app, domainPublicRouter) => {
   /* oauth2orize-koa 에서 oauth 트랜잭션 관리를 위해서 session을 사용함. */
   app.keys = [SECRET]
   app.use(session(app))
-  app.use(oauth2Router.routes())
+
+  domainPublicRouter.use('/admin', oauth2Router.routes(), oauth2Router.allowedMethods())
 })
