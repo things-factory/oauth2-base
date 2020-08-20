@@ -12,6 +12,7 @@ export const appBindingsResolver = {
     const convertedParams = convertListParams(params)
     convertedParams.where = {
       ...convertedParams.where,
+      domain,
       userType: 'application'
     }
 
